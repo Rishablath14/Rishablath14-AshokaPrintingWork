@@ -12,9 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import axios from "axios"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
 
 export function ModeToggle() {
+  const pathname = usePathname();
   const { setTheme } = useTheme()
   const router = useRouter();
   const logout = async () => {
@@ -43,7 +45,7 @@ export function ModeToggle() {
         <DropdownMenuItem onClick={() => setTheme("dark")}>
           Dark
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={logout} className="bg-red-600 font-extrabold">
+        <DropdownMenuItem onClick={logout} className={cn("bg-red-600 font-extrabold",pathname==='/login'?"hidden":"")}>
           Logout
         </DropdownMenuItem>
       </DropdownMenuContent>

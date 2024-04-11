@@ -15,15 +15,18 @@ const login = () => {
   })
   const handleSubmit = async (e)=>{
     e.preventDefault();
+    const toastlo = toast.loading("Login Check...")
     try {
             setLoading(true);
             const response = await axios.post("/api/admin", form);
             console.log("Login success", response.data);
-            toast.success("Login success");
+            toast.success("Login success",{
+              id:toastlo
+            });
             router.push("/");
         } catch (error) {
             console.log("Login failed", error.message);
-            toast.error(error.response.data.message);
+            toast.error(error.response.data.message,{id:toastlo});
         } finally{
         setLoading(false);
         }
