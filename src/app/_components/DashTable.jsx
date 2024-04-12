@@ -170,6 +170,7 @@ export default function DashTableDemo({customers}) {
   
   const handleWork = async (id,e)=>{
     const data = {id,isCompleted:e.target.value}
+    const toastid = toast.loading("Updating..");
     try {
       const response = await updateCustomer(data);
       if (response) {
@@ -180,14 +181,15 @@ export default function DashTableDemo({customers}) {
           return customer;
         });
         setCustomerData(updatedCustomerData);
-        toast.success("Customer updated Successfully");
+        toast.success("Customer updated Successfully",{id:toastid});
       } else {
-        toast.error("Failed to update!");
+        toast.error("Failed to update!",{id:toastid});
       }
   }
   catch(e){console.log("error",e)}
   }
   const handleDelete = async (id) => {
+    const toastid = toast.loading("Deleting...");
     try {
       const response = await deleteCustomer(id);
       if (response) {
@@ -195,13 +197,13 @@ export default function DashTableDemo({customers}) {
           (customer) => customer._id !== id
         );
         setCustomerData(updatedCustomers);
-        toast.success('Customer deleted successfully!');
+        toast.success('Customer deleted successfully!',{id:toastid});
       } else {
-        toast.error('Failed to delete customer!');
+        toast.error('Failed to delete customer!',{id:toastid});
       }
     } catch (error) {
       console.error('Error deleting customer:', error);
-      toast.error('An error occurred while deleting customer!');
+      toast.error('An error occurred while deleting customer!',{id:toastid});
     }
   };
   const table = useReactTable({

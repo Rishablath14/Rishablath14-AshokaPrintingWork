@@ -42,14 +42,15 @@ const page = ({params}) => {
   };
   const handleUpdate = async (e)=>{
     e.preventDefault();
-    if(initialData===formData){toast.info("No Changes to Update");return}
+    const toastid = toast.loading("Updating...");
+    if(initialData===formData){toast.info("No Changes to Update",{id:toastid});return}
     const orderDate = new Date(formData.date);
     const deliveryDate = new Date(formData.expectedDeliveryDate);
-    if (orderDate > deliveryDate) {toast.error("order date must be less than or equal to delivery date");return}
+    if (orderDate > deliveryDate) {toast.error("order date must be less than or equal to delivery date",{id:toastid});return}
     const dataup = {id:params.id,...formData};
     const res = await updateCustomer(dataup);
-    if(res){toast.success("Customer Updated Successfully")}
-    else{toast.error("Customer Updation Failed!")}
+    if(res){toast.success("Customer Updated Successfully",{id:toastid})}
+    else{toast.error("Customer Updation Failed!",{id:toastid})}
   }
   if(!formData) return <div className='flex justify-center items-center min-h-[calc(100vh-96px)]'>Loading...</div>
   return (

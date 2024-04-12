@@ -1,4 +1,4 @@
-import { getAllCustomer } from '../actions/customer.action';
+import { getAllCustomer, getAllCustomertry } from '../actions/customer.action';
 import DataTableDemo from './CustomersTable';
 
 const ShowUsers = async () => {

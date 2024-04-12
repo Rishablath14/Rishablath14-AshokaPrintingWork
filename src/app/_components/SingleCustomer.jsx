@@ -22,17 +22,18 @@ export default function SingleCustomer({data}) {
     return formattedDate;
   }
   const handleDelete = async()=>{
+    const toastid = toast.loading("deleting..");
     try {
       const response = await deleteCustomer(data._id);
       if (response) {
-        toast.success('Customer deleted successfully!');
+        toast.success('Customer deleted successfully!',{id:toastid});
         router.push("/customers");
       } else {
-        toast.error('Failed to delete customer!');
+        toast.error('Failed to delete customer!',{id:toastid});
       }
     } catch (error) {
       console.error('Error deleting customer:', error);
-      toast.error('An error occurred while deleting customer!');
+      toast.error('An error occurred while deleting customer!',{id:toastid});
     }
   }
   if(!customer && data) return <div className='w-full min-h-[calc(100vh-96px)] flex justify-center items-center'>Loading...</div>

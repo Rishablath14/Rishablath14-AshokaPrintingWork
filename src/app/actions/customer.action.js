@@ -11,7 +11,7 @@ export const getOneCustomer = async (id) => {
     const data = JSON.parse(JSON.stringify(customer))
     return data;
 }
-export const getAllCustomer = async () => {
+export const getAllCustomer = async()=>{
     await connect();
     const customer = await Customers.find();
     if(!customer) return null;
@@ -20,16 +20,14 @@ export const getAllCustomer = async () => {
 }
 export const addCustomer = async (data) => {
     try{
-            await connect();
-            const customer = new Customers(data);
-            const savedCust = await customer.save();
-            revalidatePath("/");
-            revalidatePath("/customers");
-            if(savedCust) return true
-            else return false
+        await connect();
+        const customer = new Customers(data);
+        const save = await customer.save();
+        return true
         }
         catch(e){
             console.log("error",e);
+            return false
         }
 }
 export const deleteCustomer = async (id) => {
