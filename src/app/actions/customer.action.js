@@ -24,6 +24,7 @@ export const addCustomer = async (data) => {
             const customer = new Customers(data);
             const savedCust = await customer.save();
             revalidatePath("/");
+            revalidatePath("/customers");
             if(savedCust) return true
             else return false
         }
@@ -36,6 +37,7 @@ export const deleteCustomer = async (id) => {
         await connect();
         const customer = await Customers.deleteOne({_id:id});
         revalidatePath("/");
+        revalidatePath("/customers");
         if(customer.deletedCount>0) return true
         else return false
     }
@@ -52,6 +54,7 @@ export const updateCustomer = async (data) => {
       { $set: {...rest} }
     );
     revalidatePath("/");
+    revalidatePath("/customers");
     if(customer.modifiedCount>0) return true
     else return false
 }
@@ -85,6 +88,7 @@ export const getCustomerProgress = async () => {
     if(!customer) return null;
     const data = JSON.parse(JSON.stringify(customer))
     revalidatePath("/");
+    revalidatePath("/customers");
     const customers = data.filter(
         (customer) => customer.isCompleted === 'progress'
       );
