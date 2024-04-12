@@ -33,11 +33,19 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
-import { deleteCustomer, updateCustomer } from "@/app/actions/customer.action"
+import { CustomerContext } from "./CustomerContext"
+import Link from 'next/link'
 
 
-export default function DashTableDemo({customers}) {
-  const [customerData, setCustomerData] = React.useState(customers);
+export default function DashTableDemo() {
+  const { customers, updateCustomercont, deleteCustomercont } = React.useContext(CustomerContext);
+  React.useEffect(()=>{
+    const data = customers.filter(
+      (customer) => customer.isCompleted === 'progress'
+    );
+    setCustomerData(data);
+  },[customers])
+  const [customerData, setCustomerData] = React.useState([]);
   const [sorting, setSorting] = React.useState([])
   const [columnFilters, setColumnFilters] = React.useState([])
   const [columnVisibility, setColumnVisibility] = React.useState({})
@@ -157,8 +165,8 @@ export default function DashTableDemo({customers}) {
                 Copy Customer ID
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem><a href={`customers/${customer._id}`}>View customer</a></DropdownMenuItem>
-              <DropdownMenuItem><a href={`customers/${customer._id}/update`}>Update customer</a></DropdownMenuItem>
+              <DropdownMenuItem><Link href={`customers/${customer._id}`}>View customer</Link></DropdownMenuItem>
+              <DropdownMenuItem><Link href={`customers/${customer._id}/update`}>Update customer</Link></DropdownMenuItem>
               <DropdownMenuItem onClick={()=>handleDelete(customer._id)}>Delete customer</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -171,35 +179,16 @@ export default function DashTableDemo({customers}) {
     const data = {id,isCompleted:e.target.value}
     const toastid = toast.loading("Updating..");
     try {
-      const response = await updateCustomer(data);
-      if (response) {
-        const updatedCustomerData = customerData.map(customer => {
-          if (customer._id === id) {
-            return { ...customer, isCompleted: data.isCompleted };
-          }
-          return customer;
-        });
-        setCustomerData(updatedCustomerData);
-        toast.success("Customer updated Successfully",{id:toastid});
-      } else {
-        toast.error("Failed to update!",{id:toastid});
-      }
+      await updateCustomercont(id,data);
+      toast.success("Customer updated Successfully",{id:toastid});
   }
   catch(e){console.log("error",e)}
   }
   const handleDelete = async (id) => {
     const toastid = toast.loading("Deleting...");
     try {
-      const response = await deleteCustomer(id);
-      if (response) {
-        const updatedCustomers = customerData.filter(
-          (customer) => customer._id !== id
-        );
-        setCustomerData(updatedCustomers);
-        toast.success('Customer deleted successfully!',{id:toastid});
-      } else {
-        toast.error('Failed to delete customer!',{id:toastid});
-      }
+      await deleteCustomercont(id);
+      toast.success('Customer deleted successfully!',{id:toastid});
     } catch (error) {
       console.error('Error deleting customer:', error);
       toast.error('An error occurred while deleting customer!',{id:toastid});

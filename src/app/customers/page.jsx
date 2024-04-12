@@ -1,10 +1,10 @@
 import React from 'react'
-import ShowUsers from '../_components/ShowUsers'
+import DataTableDemo from '../_components/CustomersTable'
 
 const page = () => {
   return (
     <div className='p-2 md:p-4'>
-        <ShowUsers/>
+      <DataTableDemo/>
     </div>
   )
 }

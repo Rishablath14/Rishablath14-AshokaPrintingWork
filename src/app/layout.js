@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "./_components/themeProvider";
 import Header from "./_components/header";
+import { CustomerProvider } from "./_components/CustomerContext";
 
 const lato = Lato({ subsets: ["latin"],weight:['100','300','400','700','900'] ,variable:"--font-lato",});
 
@@ -22,11 +23,13 @@ export default function RootLayout({ children }) {
             enableSystem
             disableTransitionOnChange
           >
+      <CustomerProvider>
       <Header/>
       <main className="pt-16">
       {children}
       </main>
       <Toaster richColors position="top-right"/>
+      </CustomerProvider>      
       </ThemeProvider>  
       </body>
     </html>

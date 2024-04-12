@@ -1,9 +1,11 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { toast } from "sonner"
 import { addCustomer } from '../actions/customer.action';
+import { CustomerContext } from './CustomerContext';
 
 const UserAdd = () => {
+  const {addCustomercont} = useContext(CustomerContext);
   const [loading,setLoading] = useState(false);
   const [formData, setFormData] = useState({
   date: '',
@@ -128,8 +130,7 @@ const UserAdd = () => {
     const deliveryDate = new Date(formData.expectedDeliveryDate);
     if (orderDate > deliveryDate) {toast.error("order date must be less than or equal to delivery date",{id:toastid});setLoading(false);return}
     try {
-      const response = await addCustomer(formData);
-      if (response) {
+        await addCustomercont(formData);
         toast.success("Customer Saved Successfully",{id:toastid})
         setFormData({
             date: '',
@@ -211,9 +212,6 @@ const UserAdd = () => {
                 otherQuantity:'',
               }}
         });
-      } else {
-        console.error('Error creating user detail');
-      }
     } catch (error) {
       console.error('Error creating user detail:', error);
     }finally{setLoading(false)}

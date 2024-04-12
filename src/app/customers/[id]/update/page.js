@@ -1,12 +1,14 @@
 "use client"
+import { CustomerContext } from '@/app/_components/CustomerContext'
 import { getOneCustomer, updateCustomer } from '@/app/actions/customer.action'
 import React, { useEffect, useState } from 'react'
 import { toast } from "sonner"
 
 const page = ({params}) => {
+  const { getCustomercont,updateCustomercont } = React.useContext(CustomerContext);
    const [formData,setFormData] = useState(null);
    const [initialData,setInitialData] = useState(null);
-   useEffect(()=>{getOneCustomer(params.id).then((data)=>{const uporddate = new Date(data.date).toISOString().split('T')[0];const updeldata = new Date(data.expectedDeliveryDate).toISOString().split('T')[0];const updata = {...data,date:uporddate,expectedDeliveryDate:updeldata};setFormData(updata);setInitialData(updata)})},[]) 
+   useEffect(()=>{getCustomercont(params.id).then((data)=>{const oneCustomer = data[0]; const uporddate = new Date(oneCustomer.date).toISOString().split('T')[0];const updeldata = new Date(oneCustomer.expectedDeliveryDate).toISOString().split('T')[0];const updata = {...oneCustomer,date:uporddate,expectedDeliveryDate:updeldata};setFormData(updata);setInitialData(updata)})},[]) 
    const handleChange = (e) => {
     const { name, value } = e.target;
     if (name.includes('.')) {
@@ -47,10 +49,11 @@ const page = ({params}) => {
     const orderDate = new Date(formData.date);
     const deliveryDate = new Date(formData.expectedDeliveryDate);
     if (orderDate > deliveryDate) {toast.error("order date must be less than or equal to delivery date",{id:toastid});return}
-    const dataup = {id:params.id,...formData};
-    const res = await updateCustomer(dataup);
-    if(res){toast.success("Customer Updated Successfully",{id:toastid})}
-    else{toast.error("Customer Updation Failed!",{id:toastid})}
+    try{
+      const dataup = {id:params.id,...formData};
+      await updateCustomercont(params.id,dataup);
+      toast.success("Customer Updated Successfully",{id:toastid});
+    }catch(e){console.log("error",e)}
   }
   if(!formData) return <div className='flex justify-center items-center min-h-[calc(100vh-96px)]'>Loading...</div>
   return (
