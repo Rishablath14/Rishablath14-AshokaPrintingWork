@@ -1,7 +1,6 @@
 "use client"
 import React, { useState, useEffect, useContext } from 'react';
 import { toast } from "sonner"
-import { addCustomer } from '../actions/customer.action';
 import { CustomerContext } from './CustomerContext';
 
 const UserAdd = () => {

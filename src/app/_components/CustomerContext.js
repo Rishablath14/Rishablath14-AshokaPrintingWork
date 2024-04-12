@@ -6,18 +6,18 @@ export const CustomerContext = createContext();
 
 export const CustomerProvider = ({ children }) => {
   const [customers, setCustomers] = useState([]);
-
+  
+  const fetchCustomers = async () => {
+    const data = await getAllCustomer();
+    setCustomers(data);
+  };
   useEffect(() => {
-    const fetchCustomers = async () => {
-      const data = await getAllCustomer();
-      setCustomers(data);
-    };
     fetchCustomers();
   }, []);
   
   const addCustomercont = async (customerData) => {
-    const newCustomer = addCustomer(customerData);
-    setCustomers([...customers, newCustomer]);
+    await addCustomer(customerData);
+    fetchCustomers();
   };
 
   const getCustomercont = async (id) => {

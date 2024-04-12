@@ -23,7 +23,7 @@ const login = () => {
             toast.success("Login success",{
               id:toastlo
             });
-            router.push("/");
+            router.replace("/");
         } catch (error) {
             console.log("Login failed", error.message);
             toast.error(error.response.data.message,{id:toastlo});

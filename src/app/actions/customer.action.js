@@ -10,10 +10,10 @@ export const getAllCustomer = async()=>{
     const data = JSON.parse(JSON.stringify(customer))
     return data;
 }
-export const addCustomer = async (data) => {
+export const addCustomer = async (cust) => {
     try{
         await connect();
-        const customer = new Customers(data);
+        const customer = new Customers(cust);
         const save = await customer.save();
         const data = JSON.parse(JSON.stringify(save));
         return data;
