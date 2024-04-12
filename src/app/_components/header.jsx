@@ -19,7 +19,7 @@ const Header = () => {
       {/* <Image src="/asp_logo.webp" alt="APW LOGO" fetchPriority='high' width={50} height={50} className='hidden md:block'/> */}
       <Image src="/asp_logo.webp" alt="APW LOGO" fetchPriority='high' width={50} height={50} className='block mix-blend-luminosity'/>
       <div className='flex gap-4 md:gap-12 justify-center items-center'>
-        {navLinks.map((nav,idx)=>(<Link key={idx} href={nav.link} className={cn('text-lg font-medium dark:border-white border-black px-2 rounded-md',path===nav.link?'border':'')}>{nav.label}</Link>))}
+        {navLinks.map((nav,idx)=>(<a key={idx} href={nav.link} className={cn('text-lg font-medium dark:border-white border-black px-2 rounded-md',path===nav.link?'border':'')}>{nav.label}</a>))}
       </div>
       <ModeToggle/>
     </div>

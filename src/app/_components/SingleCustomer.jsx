@@ -1,5 +1,4 @@
 "use client"
-import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useEffect, useState } from 'react';
@@ -40,18 +39,18 @@ export default function SingleCustomer({data}) {
   return (
     <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <div className="pb-4 flex justify-start items-center">
-        <Link href="/customers">
+        <a href="/customers">
           <Button variant="outline" size="sm">
             <ChevronLeft className="h-4 w-4 mr-2" /> Back to Customers
           </Button>
-        </Link>
+        </a>
         { data &&
         <>
-        <Link href={`${data._id}/update`} className='mx-1 md:mx-2'>
+        <a href={`${data._id}/update`} className='mx-1 md:mx-2'>
           <Button variant="outline" size="sm">
             Update
           </Button>
-        </Link>
+        </a>
           <Button variant="outline" size="sm" onClick={handleDelete}>
             Delete
           </Button>

@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import Link from 'next/link'
 import { toast } from "sonner"
 import {
   flexRender,
@@ -158,8 +157,8 @@ export default function DashTableDemo({customers}) {
                 Copy Customer ID
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem><Link href={`customers/${customer._id}`}>View customer</Link></DropdownMenuItem>
-              <DropdownMenuItem><Link href={`customers/${customer._id}/update`}>Update customer</Link></DropdownMenuItem>
+              <DropdownMenuItem><a href={`customers/${customer._id}`}>View customer</a></DropdownMenuItem>
+              <DropdownMenuItem><a href={`customers/${customer._id}/update`}>Update customer</a></DropdownMenuItem>
               <DropdownMenuItem onClick={()=>handleDelete(customer._id)}>Delete customer</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
