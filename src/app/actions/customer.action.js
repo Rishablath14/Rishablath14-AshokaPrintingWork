@@ -1,6 +1,7 @@
 "use server"
 import { connect } from '@/app/actions/dbconnect.action';
 import Customers from '@/app/utils/userSchema';
+import { revalidatePath } from 'next/cache'
 
 
 export const getOneCustomer = async (id) => {
@@ -22,6 +23,8 @@ export const addCustomer = async (data) => {
         await connect();
         const customer = new Customers(data);
         const save = await customer.save();
+        revalidatePath("/");
+        revalidatePath("/customers");
         return true
         }
         catch(e){
@@ -33,8 +36,8 @@ export const deleteCustomer = async (id) => {
     try{
         await connect();
         const customer = await Customers.deleteOne({_id:id});
-       
-       
+        revalidatePath("/");
+        revalidatePath("/customers");
         if(customer.deletedCount>0) return true
         else return false
     }
@@ -50,8 +53,8 @@ export const updateCustomer = async (data) => {
       { _id:id},
       { $set: {...rest} }
     );
-   
-   
+    revalidatePath("/");
+    revalidatePath("/customers");
     if(customer.modifiedCount>0) return true
     else return false
 }
