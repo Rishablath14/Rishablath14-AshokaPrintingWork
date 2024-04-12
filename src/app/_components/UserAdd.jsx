@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import { addCustomer } from '../actions/customer.action';
 
 const UserAdd = () => {
+  const [loading,setLoading] = useState(false);
   const [formData, setFormData] = useState({
   date: '',
   expectedDeliveryDate: '',
@@ -121,13 +122,15 @@ const UserAdd = () => {
 
   const handleCreate = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    const toastid=toast.loading("Adding..");
     const orderDate = new Date(formData.date);
     const deliveryDate = new Date(formData.expectedDeliveryDate);
-    if (orderDate > deliveryDate) {toast.error("order date must be less than or equal to delivery date");return}
+    if (orderDate > deliveryDate) {toast.error("order date must be less than or equal to delivery date",{id:toastid});setLoading(false);return}
     try {
       const response = await addCustomer(formData);
       if (response) {
-        toast.success("Customer Saved Successfully")
+        toast.success("Customer Saved Successfully",{id:toastid})
         setFormData({
             date: '',
             expectedDeliveryDate: '',
@@ -213,7 +216,7 @@ const UserAdd = () => {
       }
     } catch (error) {
       console.error('Error creating user detail:', error);
-    }
+    }finally{setLoading(false)}
   };
 
   return (
@@ -556,7 +559,7 @@ const UserAdd = () => {
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Other Jobs Quantity:&nbsp;</label>
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.pdfPigmentation.otherQuantity' value={formData.fileDetails.pdfPigmentation.otherQuantity} onChange={handleChange}/>    
         </span>
-        <button type='submit' className='w-full p-2 border-[1px] border-b-[4px] dark:bg-slate-950 dark:text-white dark:hover:bg-slate-900 hover:border-b-[1px] hover:bg-slate-50/80 transition-all dark:border-white border-zinc-950/90 block text-lg bg-slate-50 rounded-md text-black shadow-md font-bold col-span-1 sm:col-span-2 md:col-span-3'>Add Customer</button>
+        <button type='submit' disabled={loading} className='w-full p-2 border-[1px] border-b-[4px] dark:bg-slate-950 dark:text-white dark:hover:bg-slate-900 hover:border-b-[1px] hover:bg-slate-50/80 transition-all dark:border-white border-zinc-950/90 block text-lg bg-slate-50 rounded-md text-black shadow-md font-bold col-span-1 sm:col-span-2 md:col-span-3'>Add Customer</button>
         </form>
     </div>
   );
