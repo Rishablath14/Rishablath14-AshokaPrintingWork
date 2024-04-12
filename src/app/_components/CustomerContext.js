@@ -6,7 +6,6 @@ export const CustomerContext = createContext();
 
 export const CustomerProvider = ({ children }) => {
   const [customers, setCustomers] = useState([]);
-  const [aggregateData, setAggregateData] = useState({totalSales: 0, totalCustomers: 0,totalBalance:0});
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -43,7 +42,7 @@ export const CustomerProvider = ({ children }) => {
 
   return (
     <CustomerContext.Provider
-      value={{ customers,aggregateData,addCustomercont,getCustomercont,updateCustomercont, deleteCustomercont }}
+      value={{ customers,addCustomercont,getCustomercont,updateCustomercont, deleteCustomercont }}
     >
       {children}
     </CustomerContext.Provider>
