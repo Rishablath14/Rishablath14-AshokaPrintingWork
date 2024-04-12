@@ -87,8 +87,6 @@ export const getCustomerProgress = async () => {
     const customer = await Customers.find();
     if(!customer) return null;
     const data = JSON.parse(JSON.stringify(customer))
-    revalidatePath("/");
-    revalidatePath("/customers");
     const customers = data.filter(
         (customer) => customer.isCompleted === 'progress'
       );
