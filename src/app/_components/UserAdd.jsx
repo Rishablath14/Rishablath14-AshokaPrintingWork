@@ -14,9 +14,9 @@ const UserAdd = () => {
   mobile: '',
   email: '',
   gstNo: '',
+  company:'apw',
   totalAmount: 0,
   advance: 0,
-  balance: 0,
   isCompleted:'progress',
   fileDetails: {
     pc: '1',
@@ -31,9 +31,9 @@ const UserAdd = () => {
     gramWeightOfPaper: 0,
     printCopies: {
       quantity: 0,
-      sides: 'single',
+      sides: '',
     },
-    watermarkPage: false,
+    watermarkPage: '',
     inkColor: '',
     paperColor: {
       firstCopy: '',
@@ -43,7 +43,7 @@ const UserAdd = () => {
       fifthCopy: '',
     },
     graph: 0,
-    printType: 'single',
+    printType: '',
     screenPrintingColor: '',
     stickerSheetSize: '',
     stickerSheetColor: '',
@@ -51,37 +51,42 @@ const UserAdd = () => {
     serialNumTo: 0,
     bookNumFrom: 0,
     bookNumTo: 0,
-    perforation: 'normal',
+    perforation: '',
     perforationCopy: '',
-    PaperCutSize: 'hori',
+    PaperCutSize: '',
     plateNumber: 0,
     binding: {
-      bindType:'1',
-      bothSideCraft: false,
-      pad:'normal',
-      register:'clothcorner',
+      bindType:'',
+      bothSideCraft: '',
+      pad:'',
+      register:'',
     },
     vinylSize: '',
     sunBoardSize: '',
     rediumSize:'',
-    stickerMultiCol: false, 
-    vCardsMCol: false,
-    vCardsBothSide: false,
+    stickerMultiCol: '', 
+    vCardsMCol: '',
+    vCardsBothSide: '',
     vCardsXeroxCol: '',
-    vCardsLamination: 'single',
-    laminationAdd:false,
-    vCardsLaminationAdd:'uv',
+    vCardsLamination: '',
+    laminationAdd:'',
+    vCardsLaminationAdd:'',
     xerox:{
-        colorXerox: false,
-        singleSide:false,
+        colorXerox: '',
+        singleSide:'',
         quantity:'',
         size:'',
     },
+    idCard:{
+      idType:'',
+      side:'',
+      quantity:0
+     },
     pdfPigmentation: {
-      single: false,
+      single: '',
       size: '',
       quantity: 0,
-      spiralBinding: false,
+      spiralBinding: '',
       otherJobs: '',
       otherQuantity:'',
     }}
@@ -132,85 +137,90 @@ const UserAdd = () => {
         await addCustomercont(formData);
         toast.success("Customer Saved Successfully",{id:toastid})
         setFormData({
-            date: '',
-            expectedDeliveryDate: '',
-            partyName: '',
-            address: '',
-            mobile: '',
-            email: '',
-            gstNo: '',
-            totalAmount: 0,
-            advance: 0,
-            balance: 0,
-            isCompleted:'progress',
-            fileDetails: {
-              pc: '1',
-              fileName: '',
-              software: '',
-              totalBookQuantity: 0,
-              leavesPerBook: 0,
-              padQuantity: 0,
-              leavesPerPad: 0,
-              paperSize: '',
-              paperQuality: '',
-              gramWeightOfPaper: 0,
-              printCopies: {
-                quantity: 0,
-                sides: 'single',
-              },
-              watermarkPage: false,
-              inkColor: '',
-              paperColor: {
-                firstCopy: '',
-                secondCopy: '',
-                thirdCopy: '',
-                fourthCopy: '',
-                fifthCopy: '',
-              },
-              graph: 0,
-              printType: 'single',
-              screenPrintingColor: '',
-              stickerSheetSize: '',
-              stickerSheetColor: '',
-              serialNumFrom: 0,
-              serialNumTo: 0,
-              bookNumFrom: 0,
-              bookNumTo: 0,
-              perforation: 'normal',
-              perforationCopy: '',
-              PaperCutSize: 'hori',
-              plateNumber: 0,
-              binding: {
-                type:'1',
-                bothSideCraft: false,
-                pad:'normal',
-                register:'clothcorner',
-              },
-              vinylSize: '',
-              sunBoardSize: '',
-              rediumSize:'',
-              stickerMultiCol: false, 
-              vCardsMCol: false,
-              vCardsBothSide: false,
-              vCardsXeroxCol: '',
-              vCardsLamination: 'single',
-              laminationAdd:false,
-              vCardsLaminationAdd:'uv',
-              xerox:{
-                  colorXerox: false,
-                  singleSide:false,
-                  quantity:'',
-                  size:'',
-              },
-              pdfPigmentation: {
-                single: false,
-                size: '',
-                quantity: 0,
-                spiralBinding: false,
-                otherJobs: '',
-                otherQuantity:'',
-              }}
-        });
+          date: '',
+          expectedDeliveryDate: '',
+          partyName: '',
+          address: '',
+          mobile: '',
+          email: '',
+          gstNo: '',
+          company:'apw',
+          totalAmount: 0,
+          advance: 0,
+          isCompleted:'progress',
+          fileDetails: {
+            pc: '1',
+            fileName: '',
+            software: '',
+            totalBookQuantity: 0,
+            leavesPerBook: 0,
+            padQuantity: 0,
+            leavesPerPad: 0,
+            paperSize: '',
+            paperQuality: '',
+            gramWeightOfPaper: 0,
+            printCopies: {
+              quantity: 0,
+              sides: '',
+            },
+            watermarkPage: '',
+            inkColor: '',
+            paperColor: {
+              firstCopy: '',
+              secondCopy: '',
+              thirdCopy: '',
+              fourthCopy: '',
+              fifthCopy: '',
+            },
+            graph: 0,
+            printType: '',
+            screenPrintingColor: '',
+            stickerSheetSize: '',
+            stickerSheetColor: '',
+            serialNumFrom: 0,
+            serialNumTo: 0,
+            bookNumFrom: 0,
+            bookNumTo: 0,
+            perforation: '',
+            perforationCopy: '',
+            PaperCutSize: '',
+            plateNumber: 0,
+            binding: {
+              bindType:'',
+              bothSideCraft: '',
+              pad:'',
+              register:'',
+            },
+            vinylSize: '',
+            sunBoardSize: '',
+            rediumSize:'',
+            stickerMultiCol: '', 
+            vCardsMCol: '',
+            vCardsBothSide: '',
+            vCardsXeroxCol: '',
+            vCardsLamination: '',
+            laminationAdd:'',
+            vCardsLaminationAdd:'',
+            xerox:{
+                colorXerox: '',
+                singleSide:'',
+                quantity:'',
+                size:'',
+            },
+            idCard:{
+              idType:'',
+              side:'',
+              quantity:0
+             },
+            pdfPigmentation: {
+              single: '',
+              size: '',
+              quantity: 0,
+              spiralBinding: '',
+              otherJobs: '',
+              otherQuantity:'',
+            }}
+          });
     } catch (error) {
       console.error('Error creating user detail:', error);
     }finally{setLoading(false)}
@@ -248,16 +258,19 @@ const UserAdd = () => {
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='gstNo' value={formData.gstNo} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Comapny:&nbsp;</label>
+        <select className='p-1 border dark:border-white dark:bg-slate-950 border-black text-center' type="text" name='company' value={formData.company} onChange={handleChange}>
+        <option value="apw">APW</option>
+        <option value="sre">SRE</option>
+        </select>
+        </span>
+        <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Total Amount:&nbsp;</label>
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name='totalAmount' value={formData.totalAmount} required={true} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Advance:&nbsp;</label>
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name='advance' value={formData.advance} required={true} onChange={handleChange}/>
-        </span>
-        <span className='flex flex-col gap-2 w-full'>
-        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Balance:&nbsp;</label>
-        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name='balance' value={formData.balance} required={true} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Work PC:&nbsp;</label>
@@ -310,6 +323,7 @@ const UserAdd = () => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Printing:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black text-center' type="text" name='fileDetails.printCopies.sides' value={formData.fileDetails.printCopies.sides} onChange={handleChange}>
+        <option value="">Select Side</option>  
         <option value="single">Single Side</option>
         <option value="both">Both Side</option>
         </select>
@@ -317,8 +331,9 @@ const UserAdd = () => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Watermark Printing:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black text-center' type="text" name='fileDetails.watermarkPage' value={formData.fileDetails.watermarkPage} onChange={handleChange}>
-        <option value={true}>Yes</option>
-        <option value={false}>No</option>
+        <option value="">Select Yes/No</option>
+        <option value='true'>Yes</option>
+        <option value='false'>No</option>
         </select>
         </span>
         <span className='flex flex-col gap-2 w-full'>
@@ -352,6 +367,7 @@ const UserAdd = () => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Printing Type:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.printType' value={formData.fileDetails.printType} onChange={handleChange}>
+        <option value="">Select Colour Type</option>  
         <option value="single">Single Colour</option>
         <option value="double">Double Colour</option>
         <option value="multi">Multi Colour</option>
@@ -388,6 +404,7 @@ const UserAdd = () => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Perforation:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.perforation' value={formData.fileDetails.perforation} onChange={handleChange}>
+        <option value="">Select perforation type</option>  
         <option value="normal">Normal</option>
         <option value="micro">Micro</option>
         </select>  
@@ -399,6 +416,7 @@ const UserAdd = () => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Paper Cut Size:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.PaperCutSize' value={formData.fileDetails.PaperCutSize} onChange={handleChange}>
+        <option value="">Select Paper Cut</option>  
         <option value="ver">Vertical</option> 
         <option value="hori">Horizontal</option> 
         </select> 
@@ -410,6 +428,7 @@ const UserAdd = () => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Binding:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.binding.bindType' value={formData.fileDetails.binding.bindType} onChange={handleChange}>
+        <option value="">Select Bind Type</option>
         <option value="2">Top Cover, Bottom Yellow Board & Cloth Patti / Normal</option>
         <option value="1">Top Cover, Bottom Yellow Board/ Spring</option>
         </select>  
@@ -417,13 +436,15 @@ const UserAdd = () => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Both Side Craft Binding:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.binding.bothSideCraft' value={formData.fileDetails.binding.bothSideCraft} onChange={handleChange}>
-        <option value={true}>Yes</option>
-        <option value={false}>No</option>
+        <option value="">Select Yes/No</option>
+        <option value='true'>Yes</option>
+        <option value='false'>No</option>
         </select>  
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Pad:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.binding.pad' value={formData.fileDetails.binding.pad} onChange={handleChange}>
+        <option value="">Select Binding Pad Type</option>  
         <option value="normal">Normal</option>
         <option value="perforated">Perforated</option>
         <option value="packet">Packet</option>
@@ -433,6 +454,7 @@ const UserAdd = () => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Register:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.binding.register' value={formData.fileDetails.binding.register} onChange={handleChange}>
+        <option value="">Select Register Type</option>  
         <option value="clothcorner">Cloth Corner & patti</option>
         <option value="fullcloth">Full Cloth</option>
         </select>  
@@ -452,22 +474,25 @@ const UserAdd = () => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Sticker Multi Colour:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.stickerMultiCol' value={formData.fileDetails.stickerMultiCol} onChange={handleChange}>
-        <option value={true}>yes</option>
-        <option value={false}>No</option>
+        <option value="">Select Yes/No</option>
+        <option value='true'>yes</option>
+        <option value='false'>No</option>
         </select>  
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>V.Cards Multi Colour:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.vCardsMCol' value={formData.fileDetails.vCardsMCol} onChange={handleChange}>
-        <option value={true}>yes</option>
-        <option value={false}>No</option>
+        <option value="">Select Yes/No</option>
+        <option value='true'>yes</option>
+        <option value='false'>No</option>
         </select>  
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>V.cards Side:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.vCardsBothSide' value={formData.fileDetails.vCardsBothSide} onChange={handleChange}>
-        <option value={true}>Double Side</option>
-        <option value={false}>Single Side</option>
+        <option value="">Select Side</option>
+        <option value='true'>Double Side</option>
+        <option value='false'>Single Side</option>
         </select>  
         </span>
         <span className='flex flex-col gap-2 w-full'>
@@ -477,6 +502,7 @@ const UserAdd = () => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>V.cards Lamination:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.vCardsLamination' value={formData.fileDetails.vCardsLamination} onChange={handleChange}>
+        <option value="">Select Vcard Lamination</option>  
         <option value="single">single Side</option>
         <option value="double">Double Side</option>
         <option value="uv">UV</option>
@@ -487,8 +513,9 @@ const UserAdd = () => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Add More:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.laminationAdd' value={formData.fileDetails.laminationAdd} onChange={handleChange}>
-        <option value={true}>Yes</option>
-        <option value={false}>No</option>
+        <option value="">Select Yes/No</option>
+        <option value='true'>Yes</option>
+        <option value='false'>No</option>
         </select>
         </span>
         {
@@ -497,6 +524,7 @@ const UserAdd = () => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>V.cards Lamination Addon:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.vCardsLaminationAdd' value={formData.fileDetails.vCardsLaminationAdd} onChange={handleChange}>
+        <option value="">Select Vcard Lamination Addon</option>  
         <option value="uv">UV</option>
         <option value="gloss">Gloss</option>
         <option value="mat">Mat</option>
@@ -507,15 +535,17 @@ const UserAdd = () => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Xerox:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.xerox.colorXerox' value={formData.fileDetails.xerox.colorXerox} onChange={handleChange}>
-        <option value={false}>Black&White</option>
-        <option value={true}>Colour</option>
+        <option value="">Select Type</option>
+        <option value='false'>Black&White</option>
+        <option value='true'>Colour</option>
         </select>  
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Xerox Side:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.xerox.singleSide' value={formData.fileDetails.xerox.singleSide} onChange={handleChange}>
-        <option value={false}>Double Side</option>
-        <option value={true}>Single Side</option>
+        <option value='true'>Single Side</option>
+        <option value='false'>Double Side</option>
+        <option value="">Select Side</option>
         </select>  
         </span>
         <span className='flex flex-col gap-2 w-full'>
@@ -529,8 +559,9 @@ const UserAdd = () => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>PDF Printing Side:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.pdfPigmentation.single' value={formData.fileDetails.pdfPigmentation.single} onChange={handleChange}>
-        <option value={true}>Single</option>
-        <option value={false}>Both</option>
+        <option value="">Select Side</option>
+        <option value='true'>Single</option>
+        <option value='false'>Both</option>
         </select>    
         </span>
         <span className='flex flex-col gap-2 w-full'>
@@ -544,9 +575,30 @@ const UserAdd = () => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>PDF Binding:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.pdfPigmentation.spiralBinding' value={formData.fileDetails.pdfPigmentation.spiralBinding} onChange={handleChange}>
-        <option value={true}>Spiral Binding</option>
-        <option value={false}>Hard Bind</option>
+        <option value="">Select Bind Type</option>
+        <option value='true'>Spiral Binding</option>
+        <option value='false'>Hard Bind</option>
         </select>    
+        </span>
+        <span className='flex flex-col gap-2 w-full'>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>ID Card Type:&nbsp;</label>
+        <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.idCard.idType' value={formData.fileDetails.idCard.idType} onChange={handleChange}>
+        <option value="">Select ID Card Type</option>
+        <option value='pvc'>PVC</option>
+        <option value='board'>Board</option>
+        </select>    
+        </span>
+        <span className='flex flex-col gap-2 w-full'>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>ID Card Side:&nbsp;</label>
+        <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.idCard.side' value={formData.fileDetails.idCard.side} onChange={handleChange}>
+        <option value="">Select ID Card Side</option>
+        <option value='single'>Single Side</option>
+        <option value='both'>Both Side</option>
+        </select>    
+        </span>
+        <span className='flex flex-col gap-2 w-full'>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>ID Card Quantity:&nbsp;</label>
+        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name='fileDetails.idCard.quantity' value={formData.fileDetails.idCard.quantity} onChange={handleChange}/>    
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Other Jobs:&nbsp;</label>

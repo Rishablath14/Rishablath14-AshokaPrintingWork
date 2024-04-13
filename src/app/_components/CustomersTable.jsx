@@ -122,16 +122,16 @@ export default function DataTableDemo() {
       },
     },
     {
-      accessorKey: "balance",
+      accessorKey: "advance",
       header: () => <div className="text-left">Balance</div>,
       cell: ({ row }) => { 
-        const amount = parseFloat(row.getValue("balance"))
-        
-        // Format the amount as a dollar amount
+        const amount = Number(row.getValue("totalAmount"));
+        const advance = Number(row.getValue("advance"));
+        const balance = parseFloat(amount-advance);
         const formatted = new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: "INR",
-        }).format(amount)
+        }).format(balance)
   
         return <div className="text-left font-medium">{formatted}</div>
       },

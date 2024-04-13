@@ -13,12 +13,13 @@ const Dashboard = () => {
          customers.map((cus)=>amount+=Number(cus.totalAmount));
          let custNum = customers.length;
          let balance = 0;
-         customers.map((cus)=>balance+=Number(cus.balance));
+         customers.map((customer)=>balance+=(Number(customer.totalAmount)-Number(customer.advance)));
          const data = {totalSales: amount, totalCustomers: custNum,totalBalance:balance}
          setAggregateData(data);
      }
      totalValues();
    },[customers])
+  if(customers.length<1){<div className='w-full min-h-[calc(100vh-96px)] flex justify-center items-center'>Loading...</div>} 
   return (
     <div>
     <div className='flex justify-around gap-2 md:gap-4 items-center mb-6'>

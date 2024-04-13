@@ -7,6 +7,7 @@ import { toast } from "sonner"
 const page = ({params}) => {
   const { getCustomercont,updateCustomercont } = React.useContext(CustomerContext);
    const [formData,setFormData] = useState(null);
+   const [loading,setLoading] = useState(false);
    const [initialData,setInitialData] = useState(null);
    useEffect(()=>{getCustomercont(params.id).then((data)=>{const oneCustomer = data[0]; const uporddate = new Date(oneCustomer.date).toISOString().split('T')[0];const updeldata = new Date(oneCustomer.expectedDeliveryDate).toISOString().split('T')[0];const updata = {...oneCustomer,date:uporddate,expectedDeliveryDate:updeldata};setFormData(updata);setInitialData(updata)})},[]) 
    const handleChange = (e) => {
@@ -49,30 +50,31 @@ const page = ({params}) => {
     const orderDate = new Date(formData.date);
     const deliveryDate = new Date(formData.expectedDeliveryDate);
     if (orderDate > deliveryDate) {toast.error("order date must be less than or equal to delivery date",{id:toastid});return}
+    setLoading(true);
     try{
       const dataup = {id:params.id,...formData};
       await updateCustomercont(params.id,dataup);
       toast.success("Customer Updated Successfully",{id:toastid});
-    }catch(e){console.log("error",e)}
+    }catch(e){console.log("error",e)}finally{setLoading(false)}
   }
   if(!formData) return <div className='flex justify-center items-center min-h-[calc(100vh-96px)]'>Loading...</div>
   return (
     <div className="w-full min-h-screen p-4 md:p-8">
-      <form className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 place-items-center gap-4' onSubmit={handleUpdate}>
+        <form className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 place-items-center gap-4' onSubmit={handleUpdate}>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Order Date:&nbsp;</label>
-        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="date" min={new Date().toISOString().split('T')[0]} name='date' value={formData.date} required={true} onChange={handleChange}/>
+        <input autoFocus className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="date" min={new Date().toISOString().split('T')[0]} name='date' value={formData.date} required={true} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Delivery Date:&nbsp;</label>
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="date" name='expectedDeliveryDate' min={new Date().toISOString().split('T')[0]} value={formData.expectedDeliveryDate} required={true} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
-        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Work Status:&nbsp;</label>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Work Status&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black text-center' type="text" name='isCompleted' value={formData.isCompleted} onChange={handleChange}>
-          <option value="progress">Progress</option>
-          <option value="completed">Completed</option>
-          <option value="canceled">Canceled</option>
+        <option value="progress">Progress</option>
+        <option value="completed">Completed</option>
+        <option value="canceled">Canceled</option>
         </select>
         </span>
         <span className='flex flex-col gap-2 w-full'>
@@ -96,16 +98,19 @@ const page = ({params}) => {
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='gstNo' value={formData.gstNo} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Comapny:&nbsp;</label>
+        <select className='p-1 border dark:border-white dark:bg-slate-950 border-black text-center' type="text" name='company' value={formData.company} onChange={handleChange}>
+        <option value="apw">APW</option>
+        <option value="sre">SRE</option>
+        </select>
+        </span>
+        <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Total Amount:&nbsp;</label>
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name='totalAmount' value={formData.totalAmount} required={true} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Advance:&nbsp;</label>
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name='advance' value={formData.advance} required={true} onChange={handleChange}/>
-        </span>
-        <span className='flex flex-col gap-2 w-full'>
-        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Balance:&nbsp;</label>
-        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name='balance' value={formData.balance} required={true} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Work PC:&nbsp;</label>
@@ -158,6 +163,7 @@ const page = ({params}) => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Printing:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black text-center' type="text" name='fileDetails.printCopies.sides' value={formData.fileDetails.printCopies.sides} onChange={handleChange}>
+        <option value="">Select Side</option>  
         <option value="single">Single Side</option>
         <option value="both">Both Side</option>
         </select>
@@ -165,8 +171,9 @@ const page = ({params}) => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Watermark Printing:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black text-center' type="text" name='fileDetails.watermarkPage' value={formData.fileDetails.watermarkPage} onChange={handleChange}>
-        <option value={true}>Yes</option>
-        <option value={false}>No</option>
+        <option value="">Select Yes/No</option>
+        <option value='true'>Yes</option>
+        <option value='false'>No</option>
         </select>
         </span>
         <span className='flex flex-col gap-2 w-full'>
@@ -200,6 +207,7 @@ const page = ({params}) => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Printing Type:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.printType' value={formData.fileDetails.printType} onChange={handleChange}>
+        <option value="">Select Colour Type</option>  
         <option value="single">Single Colour</option>
         <option value="double">Double Colour</option>
         <option value="multi">Multi Colour</option>
@@ -236,6 +244,7 @@ const page = ({params}) => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Perforation:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.perforation' value={formData.fileDetails.perforation} onChange={handleChange}>
+        <option value="">Select perforation type</option>  
         <option value="normal">Normal</option>
         <option value="micro">Micro</option>
         </select>  
@@ -247,6 +256,7 @@ const page = ({params}) => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Paper Cut Size:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.PaperCutSize' value={formData.fileDetails.PaperCutSize} onChange={handleChange}>
+        <option value="">Select Paper Cut</option>  
         <option value="ver">Vertical</option> 
         <option value="hori">Horizontal</option> 
         </select> 
@@ -258,6 +268,7 @@ const page = ({params}) => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Binding:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.binding.bindType' value={formData.fileDetails.binding.bindType} onChange={handleChange}>
+        <option value="">Select Bind Type</option>
         <option value="2">Top Cover, Bottom Yellow Board & Cloth Patti / Normal</option>
         <option value="1">Top Cover, Bottom Yellow Board/ Spring</option>
         </select>  
@@ -265,13 +276,15 @@ const page = ({params}) => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Both Side Craft Binding:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.binding.bothSideCraft' value={formData.fileDetails.binding.bothSideCraft} onChange={handleChange}>
-        <option value={true}>Yes</option>
-        <option value={false}>No</option>
+        <option value="">Select Yes/No</option>
+        <option value='true'>Yes</option>
+        <option value='false'>No</option>
         </select>  
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Pad:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.binding.pad' value={formData.fileDetails.binding.pad} onChange={handleChange}>
+        <option value="">Select Binding Pad Type</option>  
         <option value="normal">Normal</option>
         <option value="perforated">Perforated</option>
         <option value="packet">Packet</option>
@@ -281,6 +294,7 @@ const page = ({params}) => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Register:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.binding.register' value={formData.fileDetails.binding.register} onChange={handleChange}>
+        <option value="">Select Register Type</option>  
         <option value="clothcorner">Cloth Corner & patti</option>
         <option value="fullcloth">Full Cloth</option>
         </select>  
@@ -300,22 +314,25 @@ const page = ({params}) => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Sticker Multi Colour:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.stickerMultiCol' value={formData.fileDetails.stickerMultiCol} onChange={handleChange}>
-        <option value={true}>yes</option>
-        <option value={false}>No</option>
+        <option value="">Select Yes/No</option>
+        <option value='true'>yes</option>
+        <option value='false'>No</option>
         </select>  
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>V.Cards Multi Colour:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.vCardsMCol' value={formData.fileDetails.vCardsMCol} onChange={handleChange}>
-        <option value={true}>yes</option>
-        <option value={false}>No</option>
+        <option value="">Select Yes/No</option>
+        <option value='true'>yes</option>
+        <option value='false'>No</option>
         </select>  
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>V.cards Side:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.vCardsBothSide' value={formData.fileDetails.vCardsBothSide} onChange={handleChange}>
-        <option value={true}>Double Side</option>
-        <option value={false}>Single Side</option>
+        <option value="">Select Side</option>
+        <option value='true'>Double Side</option>
+        <option value='false'>Single Side</option>
         </select>  
         </span>
         <span className='flex flex-col gap-2 w-full'>
@@ -325,6 +342,7 @@ const page = ({params}) => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>V.cards Lamination:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.vCardsLamination' value={formData.fileDetails.vCardsLamination} onChange={handleChange}>
+        <option value="">Select Vcard Lamination</option>  
         <option value="single">single Side</option>
         <option value="double">Double Side</option>
         <option value="uv">UV</option>
@@ -335,8 +353,9 @@ const page = ({params}) => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Add More:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.laminationAdd' value={formData.fileDetails.laminationAdd} onChange={handleChange}>
-        <option value={true}>Yes</option>
-        <option value={false}>No</option>
+        <option value="">Select Yes/No</option>
+        <option value='true'>Yes</option>
+        <option value='false'>No</option>
         </select>
         </span>
         {
@@ -345,6 +364,7 @@ const page = ({params}) => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>V.cards Lamination Addon:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.vCardsLaminationAdd' value={formData.fileDetails.vCardsLaminationAdd} onChange={handleChange}>
+        <option value="">Select Vcard Lamination Addon</option>  
         <option value="uv">UV</option>
         <option value="gloss">Gloss</option>
         <option value="mat">Mat</option>
@@ -355,15 +375,17 @@ const page = ({params}) => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Xerox:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.xerox.colorXerox' value={formData.fileDetails.xerox.colorXerox} onChange={handleChange}>
-        <option value={false}>Black&White</option>
-        <option value={true}>Colour</option>
+        <option value="">Select Type</option>
+        <option value='false'>Black&White</option>
+        <option value='true'>Colour</option>
         </select>  
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Xerox Side:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.xerox.singleSide' value={formData.fileDetails.xerox.singleSide} onChange={handleChange}>
-        <option value={false}>Double Side</option>
-        <option value={true}>Single Side</option>
+        <option value='true'>Single Side</option>
+        <option value='false'>Double Side</option>
+        <option value="">Select Side</option>
         </select>  
         </span>
         <span className='flex flex-col gap-2 w-full'>
@@ -377,8 +399,9 @@ const page = ({params}) => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>PDF Printing Side:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.pdfPigmentation.single' value={formData.fileDetails.pdfPigmentation.single} onChange={handleChange}>
-        <option value={true}>Single</option>
-        <option value={false}>Both</option>
+        <option value="">Select Side</option>
+        <option value='true'>Single</option>
+        <option value='false'>Both</option>
         </select>    
         </span>
         <span className='flex flex-col gap-2 w-full'>
@@ -392,9 +415,30 @@ const page = ({params}) => {
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>PDF Binding:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.pdfPigmentation.spiralBinding' value={formData.fileDetails.pdfPigmentation.spiralBinding} onChange={handleChange}>
-        <option value={true}>Spiral Binding</option>
-        <option value={false}>Hard Bind</option>
+        <option value="">Select Bind Type</option>
+        <option value='true'>Spiral Binding</option>
+        <option value='false'>Hard Bind</option>
         </select>    
+        </span>
+        <span className='flex flex-col gap-2 w-full'>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>ID Card Type:&nbsp;</label>
+        <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.idCard.idType' value={formData.fileDetails.idCard.idType} onChange={handleChange}>
+        <option value="">Select ID Card Type</option>
+        <option value='pvc'>PVC</option>
+        <option value='board'>Board</option>
+        </select>    
+        </span>
+        <span className='flex flex-col gap-2 w-full'>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>ID Card Side:&nbsp;</label>
+        <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.idCard.side' value={formData.fileDetails.idCard.side} onChange={handleChange}>
+        <option value="">Select ID Card Side</option>
+        <option value='single'>Single Side</option>
+        <option value='both'>Both Side</option>
+        </select>    
+        </span>
+        <span className='flex flex-col gap-2 w-full'>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>ID Card Quantity:&nbsp;</label>
+        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name='fileDetails.idCard.quantity' value={formData.fileDetails.idCard.quantity} onChange={handleChange}/>    
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Other Jobs:&nbsp;</label>
@@ -404,7 +448,7 @@ const page = ({params}) => {
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Other Jobs Quantity:&nbsp;</label>
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.pdfPigmentation.otherQuantity' value={formData.fileDetails.pdfPigmentation.otherQuantity} onChange={handleChange}/>    
         </span>
-        <button type='submit' className='w-full p-2 border-[1px] border-b-[4px] dark:bg-slate-950 dark:text-white dark:hover:bg-slate-900 hover:border-b-[1px] hover:bg-slate-50/70 transition-all dark:border-white border-zinc-950/90 block text-lg bg-slate-50 rounded-md text-black shadow-md font-bold col-span-1 sm:col-span-2 md:col-span-3'>Update Customer</button>
+        <button type='submit' disabled={loading} className='w-full p-2 border-[1px] border-b-[4px] dark:bg-slate-950 dark:text-white dark:hover:bg-slate-900 hover:border-b-[1px] hover:bg-slate-50/80 transition-all dark:border-white border-zinc-950/90 block text-lg bg-slate-50 rounded-md text-black shadow-md font-bold col-span-1 sm:col-span-2 md:col-span-3'>Update Customer</button>
         </form>
     </div>
   )

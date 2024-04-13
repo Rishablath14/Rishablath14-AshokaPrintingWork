@@ -27,3 +27,7 @@ const Header = () => {
 }
 
 export default Header
+//options to addon: APW SRE
+//id card after pdf binding -->  id card---> PVC/ Board Idcard Side: Single Side/Both Side Quantity: number
+
+
