@@ -1,6 +1,6 @@
 import React from 'react'
 import DataTableDemo from '../_components/CustomersTable'
-
+export const revalidate=10;
 const page = () => {
   return (
     <div className='p-2 md:p-4'>
