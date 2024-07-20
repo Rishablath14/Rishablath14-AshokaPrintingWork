@@ -70,7 +70,7 @@ const page = ({params}) => {
               <dl className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3">
                 {customer.partyName!=='' && <div className='sm:col-span-1'>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Name</dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-white">{customer?.partyName}{console.log(customer)}</dd>
+                  <dd className="mt-1 text-sm text-gray-900 dark:text-white">{customer?.partyName}</dd>
                 </div>}
                 {customer.gstNo!=='' && <div className='sm:col-span-1'>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">GST No.</dt>
@@ -114,18 +114,18 @@ const page = ({params}) => {
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Work Company</dt>
                   <dd className={"mt-1 text-sm text-gray-900 dark:text-white"}>{customer.company==='apw'?"APW":"SRE"}</dd>
                 </div>
-                {customer.totalAmount>0 && <div className='sm:col-span-1'>
+                <div className='sm:col-span-1'>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Amount</dt>
                   <dd className="mt-1 text-sm text-gray-900 dark:text-white">₹{customer.totalAmount}</dd>
-                </div>}
-                {customer.advance>0 && <div className='sm:col-span-1'>
+                </div>
+                <div className='sm:col-span-1'>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Advance</dt>
                   <dd className="mt-1 text-sm text-gray-900 dark:text-white">₹{customer.advance}</dd>
-                </div>}
-                {customer.totalAmount>0 && <div className='sm:col-span-1'>
+                </div>
+                <div className='sm:col-span-1'>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Balance</dt>
                   <dd className="mt-1 text-sm text-gray-900 dark:text-white">₹{Number(customer.totalAmount)-Number(customer.advance)}</dd>
-                </div>}
+                </div>
                 <div className='sm:col-span-1'>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Work PC</dt>
                   <dd className="mt-1 text-sm text-gray-900 dark:text-white">{customer.fileDetails?.pc}</dd>
@@ -356,6 +356,10 @@ const page = ({params}) => {
         {customer.fileDetails.pdfPigmentation.otherJobs!=='' && <div className='sm:col-span-1'>
         <dt className='text-sm font-medium text-gray-500 dark:text-gray-400'>Other Jobs</dt>
         <dd className='mt-1 text-sm text-gray-900 dark:text-white'>{customer.fileDetails?.pdfPigmentation.otherJobs}</dd>
+        </div>}
+        {customer.fileDetails.pdfPigmentation.otherSize!=='' && <div className='sm:col-span-1'>
+        <dt className='text-sm font-medium text-gray-500 dark:text-gray-400'>Other Jobs Size</dt>
+        <dd className='mt-1 text-sm text-gray-900 dark:text-white'>{customer.fileDetails?.pdfPigmentation.otherSize}</dd>
         </div>}
         {customer.fileDetails.pdfPigmentation.otherQuantity!=='' && <div className='sm:col-span-1'>
         <dt className='text-sm font-medium text-gray-500 dark:text-gray-400'>Other Jobs Quantity</dt>

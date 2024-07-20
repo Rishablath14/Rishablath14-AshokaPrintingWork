@@ -82,6 +82,7 @@ const userSchema = new mongoose.Schema({
       quantity: Number,
       spiralBinding: String,
       otherJobs: String,
+      otherSize:String,
       otherQuantity:String,
     },
   },

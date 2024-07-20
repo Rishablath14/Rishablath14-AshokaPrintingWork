@@ -445,6 +445,10 @@ const page = ({params}) => {
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.pdfPigmentation.otherJobs' value={formData.fileDetails.pdfPigmentation.otherJobs} onChange={handleChange}/>    
         </span>
         <span className='flex flex-col gap-2 w-full'>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Other Jobs Size:&nbsp;</label>
+        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.pdfPigmentation.otherSize' value={formData.fileDetails.pdfPigmentation.otherSize} onChange={handleChange}/>    
+        </span>
+        <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Other Jobs Quantity:&nbsp;</label>
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.pdfPigmentation.otherQuantity' value={formData.fileDetails.pdfPigmentation.otherQuantity} onChange={handleChange}/>    
         </span>

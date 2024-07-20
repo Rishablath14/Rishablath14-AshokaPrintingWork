@@ -11,6 +11,7 @@ const lato = Lato({ subsets: ["latin"],weight:['100','300','400','700','900'] ,v
 export const metadata = {
   title: "APW DASHBOARD",
   description: "APW Dashboard",
+  icons:['asp_logo.webp'],
 };
 
 export default function RootLayout({ children }) {
