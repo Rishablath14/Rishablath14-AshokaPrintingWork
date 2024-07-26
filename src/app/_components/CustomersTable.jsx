@@ -169,7 +169,7 @@ export default function DataTableDemo() {
   ]
   
   const handleWork = async (id,e)=>{
-    const data = {id,isCompleted:e.target.value}
+    const data = {isCompleted:e.target.value}
     const toastid = toast.loading("Updating..");
     try {
       await updateCustomercont(id,data);

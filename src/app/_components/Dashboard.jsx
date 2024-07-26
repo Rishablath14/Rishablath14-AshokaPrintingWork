@@ -68,6 +68,30 @@ const Dashboard = () => {
   const [chartType, setChartType] = useState("monthly");
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [theme, setTheme] = useState('light');
+
+  useEffect(() => {
+    // Check for dark mode class on the document element
+    const handleThemeChange = () => {
+      if (document.documentElement.classList.contains('dark')) {
+        setTheme('dark');
+      } else {
+        setTheme('light');
+      }
+    };
+
+    handleThemeChange(); // Initial check
+    // Listen for changes to the theme class
+    const observer = new MutationObserver(handleThemeChange);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
   useEffect(() => {
     const totalValues = async () => {
       let amount = 0;
@@ -166,6 +190,38 @@ const Dashboard = () => {
       },
     ],
   };
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        labels: {
+          color: theme === 'dark' ? 'white' : 'black', // Change legend text color based on theme
+        },
+      },
+      tooltip: {
+        titleColor: theme === 'dark' ? 'white' : 'black', // Change tooltip title color based on theme
+        bodyColor: theme === 'dark' ? 'white' : 'black', // Change tooltip body color based on theme
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: theme === 'dark' ? 'white' : 'black', // Change X-axis ticks color based on theme
+        },
+        grid: {
+          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)', // Change X-axis grid color based on theme
+        },
+      },
+      y: {
+        ticks: {
+          color: theme === 'dark' ? 'white' : 'black', // Change Y-axis ticks color based on theme
+        },
+        grid: {
+          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)', // Change Y-axis grid color based on theme
+        },
+      },
+    },
+  };
 
   const handleYearChange = (e) => {
     setSelectedYear(e.target.value);
@@ -221,7 +277,7 @@ const Dashboard = () => {
         </div>
       </div>
       <DashTableDemo />
-      { <div className="w-[100%] lg:w-[90%] xl:w-[80%] xlx:w-[80%] mx-auto my-6 rounded-lg border bg-white p-3 shadow-md">
+      { <div className="w-[100%] lg:w-[90%] xl:w-[80%] xlx:w-[80%] mx-auto my-6 rounded-lg border bg-white dark:bg-slate-900 dark:text-white p-3 shadow-md">
         <h1 className="text-2xl font-bold">Sales Statistics</h1>
         <div className="w-full flex flex-row justify-between flex-wrap">
           <div className="flex flex-row justify-start gap-3 md:gap-5 my-3 items-center">
@@ -275,7 +331,7 @@ const Dashboard = () => {
               <div className="w-full md:w-auto flex justify-start md:justify-end gap-2">
                 <label className="my-auto text-lg">Select Year</label>
                 <select
-                  className="form-select w-25 p-2 rounded-md border border-gray-300"
+                  className="form-select w-25 p-2 rounded-md border border-gray-300 dark:bg-slate-900"
                   onChange={handleYearChange}
                   value={selectedYear}
                 >
@@ -314,7 +370,7 @@ const Dashboard = () => {
             </div>
           )}
         </div>
-        <Line data={data} className="overflow-x-auto" />
+        <Line data={data} className="overflow-x-auto" options={options}/>
       </div>
       }
     </div>

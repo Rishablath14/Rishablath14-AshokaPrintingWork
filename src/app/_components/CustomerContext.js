@@ -1,5 +1,7 @@
 "use client"
 import { createContext, useState, useEffect } from 'react';
+import { ref, onValue,onChildRemoved } from 'firebase/database';
+import { database } from '@/lib/firebase';
 import { addCustomer, deleteCustomer, getAllCustomer, updateCustomer } from '../actions/customer.action';
 
 export const CustomerContext = createContext();
@@ -12,12 +14,26 @@ export const CustomerProvider = ({ children }) => {
     setCustomers(data);
   };
   useEffect(() => {
-    fetchCustomers();
+    // fetchCustomers();
+    const customersRef = ref(database, 'customers');
+    const unsubscribe = onValue(customersRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const customersList = Object.values(data);
+        setCustomers(customersList);
+      }
+    });
+    const unsubscribeOnChildRemoved = onChildRemoved(customersRef, (snapshot) => {
+      const removedCustomerId = snapshot.key;
+      setCustomers((prevCustomers) => prevCustomers.filter((customer) => customer._id !== removedCustomerId));
+    });
+
+    return () => {unsubscribe();unsubscribeOnChildRemoved();}
   }, []);
   
   const addCustomercont = async (customerData) => {
     await addCustomer(customerData);
-    fetchCustomers();
+    // fetchCustomers();
   };
 
   const getCustomercont = async (id) => {
@@ -25,19 +41,12 @@ export const CustomerProvider = ({ children }) => {
   };
 
   const updateCustomercont = async (id, updatedData) => {
-    const data = await updateCustomer(updatedData);
-    setCustomers(
-      customers.map((customer) =>
-        customer._id === id ? { ...customer, ...data } : customer
-      )
-    );
+     await updateCustomer(id,updatedData);
+    // fetchCustomers();
   };
 
   const deleteCustomercont = async (id) => {
-    const del = await deleteCustomer(id);
-    if(del){
-        setCustomers(customers.filter((customer) => customer._id !== id));
-    }
+    await deleteCustomer(id);
   };
 
   return (
