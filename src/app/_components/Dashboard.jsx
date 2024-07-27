@@ -199,8 +199,8 @@ const Dashboard = () => {
         },
       },
       tooltip: {
-        titleColor: theme === 'dark' ? 'white' : 'black', // Change tooltip title color based on theme
-        bodyColor: theme === 'dark' ? 'white' : 'black', // Change tooltip body color based on theme
+        titleColor: 'white', // Change tooltip title color based on theme
+        bodyColor: 'white', // Change tooltip body color based on theme
       },
     },
     scales: {
@@ -265,7 +265,7 @@ const Dashboard = () => {
         </div>
         <div className="w-full shadow-md border border-black dark:border-white p-2 md:p-4 rounded-lg">
           <div className="flex justify-between w-full">
-            <h2 className="text-sm sm:text-base">Total Balance</h2>
+            <h2 className="text-sm mr-1 sm:mr-0 sm:text-base">Total Balance</h2>
             <span className="">
               <BadgeIndianRupee />
             </span>

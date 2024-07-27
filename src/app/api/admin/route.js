@@ -3,7 +3,6 @@ import { connect } from '@/app/actions/dbconnect.action';
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import Admin from '@/app/utils/adminSchema';
-import { revalidatePath } from 'next/cache';
 
 export async function GET() {
     try {
@@ -47,7 +46,6 @@ export async function POST(request){
         response.cookies.set("token", token, {
             httpOnly: true,
         })
-        revalidatePath("/login");
         return response;
 
     } catch (error) {
