@@ -102,6 +102,13 @@ export default function DashTableDemo() {
       return <div className="lowercase text-left">{formattedDate}</div>},
     },
     {
+      accessorKey: "billNumber",
+      header: "Bill Number",
+      cell: ({ row }) => (
+        <div className="font-bold">{row.getValue("billNumber")}</div>
+      ),
+    },
+    {
       accessorKey: "partyName",
       header: "Party Name",
       cell: ({ row }) => (
@@ -123,6 +130,8 @@ export default function DashTableDemo() {
         const formatted = new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: "INR",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
         }).format(amount)
   
         return <div className="text-left font-medium">{formatted}</div>
@@ -166,6 +175,7 @@ export default function DashTableDemo() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem><Link href={`customers/${customer._id}`}>View customer</Link></DropdownMenuItem>
+              <DropdownMenuItem><Link href={`customers/${customer._id}/custom`}>Add More</Link></DropdownMenuItem>
               <DropdownMenuItem><Link href={`customers/${customer._id}/update`}>Update customer</Link></DropdownMenuItem>
               <DropdownMenuItem onClick={()=>handleDelete(customer._id)}>Delete customer</DropdownMenuItem>
             </DropdownMenuContent>
@@ -185,6 +195,7 @@ export default function DashTableDemo() {
   catch(e){console.log("error",e)}
   }
   const handleDelete = async (id) => {
+    if(!window.confirm("Are you sure you want to Delete!"))return;
     const toastid = toast.loading("Deleting...");
     try {
       await deleteCustomercont(id);

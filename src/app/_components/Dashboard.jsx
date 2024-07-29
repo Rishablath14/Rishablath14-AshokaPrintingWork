@@ -26,37 +26,6 @@ Chart.register(
 
 const Dashboard = () => {
   const { customers } = useContext(CustomerContext);
-  const chartTest = [
-    { date: "2024-04-01T00:00:00.000Z", totalAmount: 23700 },
-    { date: "2024-04-01T00:00:00.000Z", totalAmount: 27700 },
-    { date: "2024-04-02T00:00:00.000Z", totalAmount: 22700 },
-    { date: "2024-04-03T00:00:00.000Z", totalAmount: 24700 },
-    { date: "2024-04-04T00:00:00.000Z", totalAmount: 23700 },
-    { date: "2024-04-05T00:00:00.000Z", totalAmount: 29700 },
-    { date: "2024-04-06T00:00:00.000Z", totalAmount: 33700 },
-    { date: "2024-04-07T00:00:00.000Z", totalAmount: 73700 },
-    { date: "2024-04-08T00:00:00.000Z", totalAmount: 43700 },
-    { date: "2024-04-09T00:00:00.000Z", totalAmount: 23700 },
-    { date: "2024-04-10T00:00:00.000Z", totalAmount: 73700 },
-    { date: "2024-04-15T00:00:00.000Z", totalAmount: 43700 },
-    { date: "2024-04-19T00:00:00.000Z", totalAmount: 25700 },
-    { date: "2024-04-22T00:00:00.000Z", totalAmount: 29700 },
-    { date: "2024-04-25T00:00:00.000Z", totalAmount: 14700 },
-    { date: "2024-04-28T00:00:00.000Z", totalAmount: 59700 },
-    { date: "2023-02-13T00:00:00.000Z", totalAmount: 13700 },
-    { date: "2024-04-13T00:00:00.000Z", totalAmount: 63700 },
-    { date: "2022-05-13T00:00:00.000Z", totalAmount: 83700 },
-    { date: "2024-04-03T00:00:00.000Z", totalAmount: 23700 },
-    { date: "2024-02-13T00:00:00.000Z", totalAmount: 27700 },
-    { date: "2024-03-03T00:00:00.000Z", totalAmount: 65700 },
-    { date: "2021-06-13T00:00:00.000Z", totalAmount: 12700 },
-    { date: "2024-04-23T00:00:00.000Z", totalAmount: 23700 },
-    { date: "2024-07-13T00:00:00.000Z", totalAmount: 43700 },
-    { date: "2024-04-23T00:00:00.000Z", totalAmount: 19700 },
-    { date: "2024-08-18T00:00:00.000Z", totalAmount: 42700 },
-    { date: "2024-09-11T00:00:00.000Z", totalAmount: 27700 },
-    { date: "2024-04-14T00:00:00.000Z", totalAmount: 48700 },
-  ];
   const [aggregateData, setAggregateData] = useState({
     totalSales: 0,
     totalCustomers: 0,
@@ -95,13 +64,9 @@ const Dashboard = () => {
   useEffect(() => {
     const totalValues = async () => {
       let amount = 0;
-      customers.map((cus) => (amount += Number(cus.totalAmount)));
-      let custNum = customers.length;
       let balance = 0;
-      customers.map(
-        (customer) =>
-          (balance += Number(customer.totalAmount) - Number(customer.advance))
-      );
+      let custNum = 0;;
+      customers.map((customer) => {if(customer.isCompleted!=='canceled'){amount += Number(customer.totalAmount);balance += Number(customer.totalAmount) - Number(customer.advance);custNum++;}});
       const data = {
         totalSales: amount,
         totalCustomers: custNum,
@@ -161,7 +126,7 @@ const Dashboard = () => {
     };
   };
 
-  const processedData = processData(chartTest);
+  const processedData = processData(customers);
   const { yearlySales = [], monthlySales = [], weeklySales = [], dailySales = [] } = processedData;
 
   const getChartData = () => {
@@ -230,7 +195,13 @@ const Dashboard = () => {
   const handleMonthChange = (e) => {
     setSelectedMonth(e.target.value);
   };
-
+  const formatAmount=(amt)=>{
+    const formatted = new Intl.NumberFormat("en-US", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        }).format(amt);
+    return formatted;    
+  }
   if (customers.length < 1) {
     <div className="w-full min-h-[calc(100vh-96px)] flex justify-center items-center">
       Loading...
@@ -248,7 +219,7 @@ const Dashboard = () => {
           </div>
           <h3 className="font-bold text-base sm:text-xl md:text-3xl mt-3 flex items-center">
             <IndianRupee className="w-[12px] xs:w-[15px] md:w-[30px]" />
-            {aggregateData.totalSales}
+            {formatAmount(aggregateData.totalSales)}
           </h3>
         </div>
         <div className="w-full shadow-md border border-black dark:border-white p-2 md:p-4 rounded-lg">
@@ -272,7 +243,7 @@ const Dashboard = () => {
           </div>
           <h3 className="font-bold text-base sm:text-xl md:text-3xl mt-3 flex  items-center">
             <IndianRupee className="w-[12px] xs:w-[15px] md:w-[30px]"/>
-            {aggregateData.totalBalance}
+            {formatAmount(aggregateData.totalBalance)}
           </h3>
         </div>
       </div>
@@ -347,7 +318,7 @@ const Dashboard = () => {
               <div className="w-full md:w-auto flex justify-start md:justify-end gap-2">
                 <label className="my-auto text-lg">Select Month</label>
                 <select
-                  className="form-select w-25 p-2 rounded-md border border-gray-300"
+                  className="form-select w-25 p-2 rounded-md border border-gray-300 dark:bg-slate-900"
                   onChange={handleMonthChange}
                   value={selectedMonth}
                   disabled={!selectedYear}

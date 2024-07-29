@@ -48,3 +48,9 @@ const login = () => {
 }
 
 export default login
+
+
+//Bill No.
+//Vinyl t-vinyl retro oneway Normal-flex Star-flex --> size --> rate 
+//PDF Print --> Custom Fields
+// Party name TBQ,LPB,TPQ,LPP, Paper Size,PQ, GSM, PCopy, Printing,Ink Colour, Colour of paperr 12 3 4 5, Graph, Serialpura ,Book pura, Perforation, Binding,Paper cut size

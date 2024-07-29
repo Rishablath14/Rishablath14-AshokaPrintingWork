@@ -7,8 +7,7 @@ import { toast } from "sonner"
 import { cn } from '@/lib/utils';
 import Link from 'next/link'
 import { CustomerContext } from "@/app/_components/CustomerContext";
-
-
+import PdfComp from "@/app/_components/PdfComp";
 
 const page = ({params}) => {
   const { getCustomercont, customers, deleteCustomercont } = useContext(CustomerContext);
@@ -27,7 +26,17 @@ const page = ({params}) => {
     const formattedDate = `${udate.getDate()} / ${udate.getMonth() + 1} / ${udate.getFullYear()}`;
     return formattedDate;
   }
+  const formatAmount=(amt)=>{
+    const formatted = new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "INR",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        }).format(amt);
+    return formatted;    
+  }
   const handleDelete = async()=>{
+    if(!window.confirm("Are you sure you want to Delete!"))return;
     const toastid = toast.loading("deleting..");
     try {
       await deleteCustomercont(params.id);
@@ -114,17 +123,21 @@ const page = ({params}) => {
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Work Company</dt>
                   <dd className={"mt-1 text-sm text-gray-900 dark:text-white"}>{customer.company==='apw'?"APW":"SRE"}</dd>
                 </div>
+                {customer.billNumber!=='' && <div className='sm:col-span-1'>
+                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Bill Number</dt>
+                  <dd className={"mt-1 text-sm text-gray-900 dark:text-white"}>{customer.billNumber}</dd>
+                </div>}
                 <div className='sm:col-span-1'>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Amount</dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-white">₹{customer.totalAmount}</dd>
+                  <dd className="mt-1 text-sm text-gray-900 dark:text-white">{formatAmount(customer.totalAmount)}</dd>
                 </div>
                 <div className='sm:col-span-1'>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Advance</dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-white">₹{customer.advance}</dd>
+                  <dd className="mt-1 text-sm text-gray-900 dark:text-white">{formatAmount(customer.advance)}</dd>
                 </div>
                 <div className='sm:col-span-1'>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Balance</dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-white">₹{Number(customer.totalAmount)-Number(customer.advance)}</dd>
+                  <dd className="mt-1 text-sm text-gray-900 dark:text-white">{formatAmount(Number(customer.totalAmount)-Number(customer.advance))}</dd>
                 </div>
                 <div className='sm:col-span-1'>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Work PC</dt>
@@ -163,7 +176,7 @@ const page = ({params}) => {
                   <dd className="mt-1 text-sm text-gray-900 dark:text-white">{customer.fileDetails?.paperQuality}</dd>
                 </div>}
                 {customer.fileDetails.gramWeightOfPaper>0 && <div className='sm:col-span-1'>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Weight Of Paper</dt>
+                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Gram Weight Of Paper</dt>
                   <dd className="mt-1 text-sm text-gray-900 dark:text-white">{customer.fileDetails?.gramWeightOfPaper}</dd>
                 </div>}
                   {customer.fileDetails.printCopies.quantity>0 && <div className='sm:col-span-1'>
@@ -215,7 +228,7 @@ const page = ({params}) => {
         <dd className='mt-1 text-sm text-gray-900 dark:text-white'>{customer.fileDetails?.screenPrintingColor}</dd>
         </div>}
         {customer.fileDetails.stickerSheetSize!=='' && <div className='sm:col-span-1'>
-        <dt className='text-sm font-medium text-gray-500 dark:text-gray-400'>sticker Sheet Color</dt>
+        <dt className='text-sm font-medium text-gray-500 dark:text-gray-400'>Sticker Sheet Color</dt>
         <dd className='mt-1 text-sm text-gray-900 dark:text-white'> {customer.fileDetails?.stickerSheetColor}</dd>
         </div>}
         {customer.fileDetails.stickerSheetColor!=='' && <div className='sm:col-span-1'>
@@ -247,8 +260,12 @@ const page = ({params}) => {
         <dd className='mt-1 text-sm text-gray-900 dark:text-white'>{customer.fileDetails?.perforationCopy}</dd>
         </div>}
         {customer.fileDetails.PaperCutSize!=='' && <div className='sm:col-span-1'>
-        <dt className='text-sm font-medium text-gray-500 dark:text-gray-400'>Paper Cut Size</dt>
+        <dt className='text-sm font-medium text-gray-500 dark:text-gray-400'>Paper Cut Type</dt>
         <dd className='mt-1 text-sm text-gray-900 dark:text-white'>{customer.fileDetails?.PaperCutSize==='ver'?"Vertical":"Horizontal"}</dd> 
+        </div>}
+        {customer.fileDetails.PaperCSize!=='' && <div className='sm:col-span-1'>
+        <dt className='text-sm font-medium text-gray-500 dark:text-gray-400'>Paper Cut Size</dt>
+        <dd className='mt-1 text-sm text-gray-900 dark:text-white'>{customer.fileDetails?.paperCSize}</dd> 
         </div>}
         {customer.fileDetails.plateNumber>0 && <div className='sm:col-span-1'>
         <dt className='text-sm font-medium text-gray-500 dark:text-gray-400'>Plate Number</dt>
@@ -256,7 +273,7 @@ const page = ({params}) => {
         </div>}
         {customer.fileDetails.binding.bindType!=='' && <div className='sm:col-span-1'>
         <dt className='text-sm font-medium text-gray-500 dark:text-gray-400'>Binding</dt>
-        <dd className='mt-1 text-sm text-gray-900 dark:text-white'>{customer.fileDetails?.binding.bindType==='1'?"Top Cover, Bottom Yellow Board/ Spring":"Top Cover, Bottom Yellow Board & Cloth Patti / Normal"}</dd>  
+        <dd className='mt-1 text-sm text-gray-900 dark:text-white'>{customer.fileDetails?.binding.bindType==='1'?"Top Cover, Bottom Yellow Board/ Spring":customer.fileDetails?.binding.bindType==='3'?'Normal':customer.fileDetails?.binding.bindType==='4'?'Both Side Brown Cover':"Top Cover, Bottom Yellow Board & Cloth Patti / Normal"}</dd>  
         </div>}
         {customer.fileDetails.binding.bothSideCraft!=='' && <div className='sm:col-span-1'>
         <dt className='text-sm font-medium text-gray-500 dark:text-gray-400'>Both Side Craft Binding</dt>
@@ -365,9 +382,42 @@ const page = ({params}) => {
         <dt className='text-sm font-medium text-gray-500 dark:text-gray-400'>Other Jobs Quantity</dt>
         <dd className='mt-1 text-sm text-gray-900 dark:text-white'>{customer.fileDetails?.pdfPigmentation.otherQuantity}</dd>
         </div>}
+        {customer.mediaDetails && customer.mediaDetails.length > 0 && customer.mediaDetails[0].type && (
+        <div className="bg-white dark:bg-slate-900 dark:text-white shadow-lg overflow-auto col-span-3">
+          <div className="px-4 py-5 sm:px-6">
+            <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">Media Details</h3>
+          </div>
+          <div className="border-t border-slate-800 px-4 py-5 sm:px-6">
+            {customer.mediaDetails.map((media, index) => (
+              <div key={index} className="mb-4 p-2 border inline-block mr-4 w-full sm:w-auto border-gray-200 rounded-md dark:border-gray-700">
+                {/* <h4 className="text-md font-medium text-gray-900 dark:text-white">Media {index + 1}</h4> */}
+                <dl className="grid grid-cols-3 gap-x-4 gap-y-4">
+                  <div className='col-span-1'>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Type</dt>
+                    <dd className="mt-1 text-sm text-gray-900 dark:text-white">{media.type}</dd>
+                  </div>
+                  <div className='col-span-1'>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Rate</dt>
+                    <dd className="mt-1 text-sm text-gray-900 dark:text-white">{formatAmount(media.rate)}</dd>
+                  </div>
+                  <div className='col-span-1'>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Size</dt>
+                    <dd className="mt-1 text-sm text-gray-900 dark:text-white">{media.size}</dd>
+                  </div>
+                </dl>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      )}
+        
               </dl>
             </div>
           </div>
+          <div className="mt-8">
+        <PdfComp formData={customer} />
+      </div>
         </div>
       ) : (
         <div className="flex justify-center items-center w-full min-h-[calc(100vh-196px)]">No customer found</div>

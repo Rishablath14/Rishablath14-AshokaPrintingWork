@@ -15,22 +15,25 @@ const UserAdd = () => {
   email: '',
   gstNo: '',
   company:'apw',
-  totalAmount: 0,
-  advance: 0,
+  billNumber:'',
+  totalAmount: '',
+  advance: '',
   isCompleted:'progress',
+  mediaCount: 1,
+  mediaDetails: [],
   fileDetails: {
     pc: '1',
     fileName: '',
     software: '',
-    totalBookQuantity: 0,
-    leavesPerBook: 0,
-    padQuantity: 0,
-    leavesPerPad: 0,
+    totalBookQuantity: '',
+    leavesPerBook: '',
+    padQuantity: '',
+    leavesPerPad: '',
     paperSize: '',
     paperQuality: '',
-    gramWeightOfPaper: 0,
+    gramWeightOfPaper: '',
     printCopies: {
-      quantity: 0,
+      quantity: '',
       sides: '',
     },
     watermarkPage: '',
@@ -42,19 +45,20 @@ const UserAdd = () => {
       fourthCopy: '',
       fifthCopy: '',
     },
-    graph: 0,
+    graph: '',
     printType: '',
     screenPrintingColor: '',
     stickerSheetSize: '',
     stickerSheetColor: '',
-    serialNumFrom: 0,
-    serialNumTo: 0,
-    bookNumFrom: 0,
-    bookNumTo: 0,
+    serialNumFrom: '',
+    serialNumTo: '',
+    bookNumFrom: '',
+    bookNumTo: '',
     perforation: '',
     perforationCopy: '',
     PaperCutSize: '',
-    plateNumber: 0,
+    paperCSize:'',
+    plateNumber: '',
     binding: {
       bindType:'',
       bothSideCraft: '',
@@ -80,12 +84,12 @@ const UserAdd = () => {
     idCard:{
       idType:'',
       side:'',
-      quantity:0
+      quantity:'',
      },
     pdfPigmentation: {
       single: '',
       size: '',
-      quantity: 0,
+      quantity: '',
       spiralBinding: '',
       otherJobs: '',
       otherSize:"",
@@ -95,31 +99,38 @@ const UserAdd = () => {
   
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name.includes('.')) {
-      const res = name.split('.');
-      if(res.length>2){
-        const [parent,section, key] = res;
-          setFormData((prevFormData) => ({
-            ...prevFormData,
-            [parent]: {
-              ...prevFormData[parent],
-              [section]: {
-                ...prevFormData[section],
-                [key]: value,
-              },
-            },
-          }));
-      }
-      else{
-        const [section, key] = res;
-          setFormData((prevFormData) => ({
-            ...prevFormData,
-            [section]: {
-              ...prevFormData[section],
-              [key]: value,
-            },
-          }));
-      }} else {
+  
+    if (name.startsWith('fileDetails.') || name.startsWith('mediaDetails.')) {
+      const keys = name.split('.');
+      setFormData((prevFormData) => {
+        let updatedFormData = { ...prevFormData };
+        let temp = updatedFormData;
+        for (let i = 0; i < keys.length - 1; i++) {
+          if (!temp[keys[i]]) temp[keys[i]] = {};
+          temp = temp[keys[i]];
+        }
+        temp[keys[keys.length - 1]] = value;
+        return updatedFormData;
+      });
+    } else if (name === 'mediaCount') {
+      const count = parseInt(value, 10);
+      if (count < 0) return; // Prevent negative values
+  
+      setFormData((prevFormData) => {
+        const currentDetails = prevFormData.mediaDetails;
+  
+        // Create a new array of media details with the desired length
+        const updatedMediaDetails = Array(count).fill({}).map((_, i) => {
+          return currentDetails[i] || { type: '', rate: '', size: '' };
+        });
+  
+        return {
+          ...prevFormData,
+          mediaCount: count,
+          mediaDetails: updatedMediaDetails,
+        };
+      });
+    } else {
       setFormData((prevFormData) => ({
         ...prevFormData,
         [name]: value,
@@ -146,22 +157,25 @@ const UserAdd = () => {
           email: '',
           gstNo: '',
           company:'apw',
-          totalAmount: 0,
-          advance: 0,
+          billNumber:'',
+          totalAmount: '',
+          advance: '',
+          mediaCount: 1,
+          mediaDetails: [],
           isCompleted:'progress',
           fileDetails: {
             pc: '1',
             fileName: '',
             software: '',
-            totalBookQuantity: 0,
-            leavesPerBook: 0,
-            padQuantity: 0,
-            leavesPerPad: 0,
+            totalBookQuantity: '',
+            leavesPerBook: '',
+            padQuantity: '',
+            leavesPerPad: '',
             paperSize: '',
             paperQuality: '',
-            gramWeightOfPaper: 0,
+            gramWeightOfPaper: '',
             printCopies: {
-              quantity: 0,
+              quantity: '',
               sides: '',
             },
             watermarkPage: '',
@@ -173,19 +187,20 @@ const UserAdd = () => {
               fourthCopy: '',
               fifthCopy: '',
             },
-            graph: 0,
+            graph: '',
             printType: '',
             screenPrintingColor: '',
             stickerSheetSize: '',
             stickerSheetColor: '',
-            serialNumFrom: 0,
-            serialNumTo: 0,
-            bookNumFrom: 0,
-            bookNumTo: 0,
+            serialNumFrom: '',
+            serialNumTo: '',
+            bookNumFrom: '',
+            bookNumTo: '',
             perforation: '',
             perforationCopy: '',
+            paperCSize:'',
             PaperCutSize: '',
-            plateNumber: 0,
+            plateNumber: '',
             binding: {
               bindType:'',
               bothSideCraft: '',
@@ -211,12 +226,12 @@ const UserAdd = () => {
             idCard:{
               idType:'',
               side:'',
-              quantity:0
+              quantity:'',
              },
             pdfPigmentation: {
               single: '',
               size: '',
-              quantity: 0,
+              quantity: '',
               spiralBinding: '',
               otherJobs: '',
               otherSize:"",
@@ -233,11 +248,11 @@ const UserAdd = () => {
       <form className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 place-items-center gap-4' onSubmit={handleCreate}>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Order Date:&nbsp;</label>
-        <input autoFocus className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="date" min={new Date().toISOString().split('T')[0]} name='date' value={formData.date} required={true} onChange={handleChange}/>
+        <input autoFocus className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="date" name='date' value={formData.date} required={true} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Delivery Date:&nbsp;</label>
-        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="date" name='expectedDeliveryDate' min={new Date().toISOString().split('T')[0]} value={formData.expectedDeliveryDate} required={true} onChange={handleChange}/>
+        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="date" name='expectedDeliveryDate' value={formData.expectedDeliveryDate} required={true} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Party Name:&nbsp;</label>
@@ -249,7 +264,7 @@ const UserAdd = () => {
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Contact Number:&nbsp;</label>
-        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='mobile' value={formData.mobile} required={true} onChange={handleChange}/>
+        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name='mobile' value={formData.mobile} required={true} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Email:&nbsp;</label>
@@ -260,11 +275,15 @@ const UserAdd = () => {
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='gstNo' value={formData.gstNo} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
-        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Comapny:&nbsp;</label>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Company:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black text-center' type="text" name='company' value={formData.company} onChange={handleChange}>
         <option value="apw">APW</option>
         <option value="sre">SRE</option>
         </select>
+        </span>
+        <span className='flex flex-col gap-2 w-full'>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Bill No.:&nbsp;</label>
+        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name='billNumber' value={formData.billNumber} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Total Amount:&nbsp;</label>
@@ -316,7 +335,7 @@ const UserAdd = () => {
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Gram Weight Of Paper:&nbsp;</label>
-        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name='fileDetails.gramWeightOfPaper' value={formData.fileDetails.gramWeightOfPaper} onChange={handleChange}/>
+        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.gramWeightOfPaper' value={formData.fileDetails.gramWeightOfPaper} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Print Copies:&nbsp;</label>
@@ -380,7 +399,7 @@ const UserAdd = () => {
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.screenPrintingColor' value={formData.fileDetails.screenPrintingColor} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
-        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>sticker Sheet Color:&nbsp;</label>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Sticker Sheet Color:&nbsp;</label>
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.stickerSheetColor' value={formData.fileDetails.stickerSheetColor} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
@@ -416,12 +435,16 @@ const UserAdd = () => {
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.perforationCopy' value={formData.fileDetails.perforationCopy} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
-        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Paper Cut Size:&nbsp;</label>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Paper Cut Type:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.PaperCutSize' value={formData.fileDetails.PaperCutSize} onChange={handleChange}>
         <option value="">Select Paper Cut</option>  
         <option value="ver">Vertical</option> 
         <option value="hori">Horizontal</option> 
         </select> 
+        </span>
+        <span className='flex flex-col gap-2 w-full'>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Paper Cut Size:&nbsp;</label>
+        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.paperCSize' value={formData.fileDetails.paperCSize} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Plate Number:&nbsp;</label>
@@ -433,6 +456,8 @@ const UserAdd = () => {
         <option value="">Select Bind Type</option>
         <option value="2">Top Cover, Bottom Yellow Board & Cloth Patti / Normal</option>
         <option value="1">Top Cover, Bottom Yellow Board/ Spring</option>
+        <option value="3">Normal</option>
+        <option value="4">Both Side Brown Cover</option>
         </select>  
         </span>
         <span className='flex flex-col gap-2 w-full'>
@@ -474,13 +499,41 @@ const UserAdd = () => {
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.rediumSize' value={formData.fileDetails.rediumSize} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
+    <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Number of Media:&nbsp;</label>
+    <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name='mediaCount' value={formData.mediaCount} onChange={handleChange} />
+  </span>
+  {Array.from({ length: formData.mediaCount }, (_, i) => (
+    <div key={i} className='w-full grid grid-cols-3 col-span-1 sm:col-span-3 gap-8 md:gap-6 bg-slate-600 place-items-center border border-black dark:border-white p-1 rounded-md'>
+      <span className='flex flex-col gap-2 w-full'>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Media Type {i + 1}:&nbsp;</label>
+        <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' name={`mediaDetails.${i}.type`} value={formData.mediaDetails[i]?.type || ''} onChange={handleChange}>
+          <option value="">Select Media Type</option>
+          <option value="vinyl">Vinyl</option>
+          <option value="t-vinyl">T-Vinyl</option>
+          <option value="retro">Retro</option>
+          <option value="oneway">One Way</option>
+          <option value="normal-flex">Normal Flex</option>
+          <option value="star-flex">Star Flex</option>
+        </select>
+      </span>
+      <span className='flex flex-col gap-2 w-full my-2'>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Media Rate {i + 1}:&nbsp;</label>
+        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name={`mediaDetails.${i}.rate`} value={formData.mediaDetails[i]?.rate || ''} onChange={handleChange} />
+      </span>
+      <span className='flex flex-col gap-2 w-full'>
+        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Media Size {i + 1}:&nbsp;</label>
+        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name={`mediaDetails.${i}.size`} value={formData.mediaDetails[i]?.size || ''} onChange={handleChange} />
+      </span>
+    </div>
+  ))}
+        <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Sticker Multi Colour:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.stickerMultiCol' value={formData.fileDetails.stickerMultiCol} onChange={handleChange}>
         <option value="">Select Yes/No</option>
         <option value='true'>yes</option>
         <option value='false'>No</option>
         </select>  
-        </span>
+        </span>  
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>V.Cards Multi Colour:&nbsp;</label>
         <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.vCardsMCol' value={formData.fileDetails.vCardsMCol} onChange={handleChange}>

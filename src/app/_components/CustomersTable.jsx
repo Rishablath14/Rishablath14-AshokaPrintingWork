@@ -95,6 +95,13 @@ export default function DataTableDemo() {
       return <div className="lowercase text-left">{formattedDate}</div>},
     },
     {
+      accessorKey: "billNumber",
+      header: "Bill Number",
+      cell: ({ row }) => (
+        <div className="font-bold">{row.getValue("billNumber")}</div>
+      ),
+    },
+    {
       accessorKey: "partyName",
       header: "Party Name",
       cell: ({ row }) => (
@@ -160,6 +167,7 @@ export default function DataTableDemo() {
               <DropdownMenuSeparator />
               <DropdownMenuItem><Link href={`customers/${customer._id}`}>View customer</Link></DropdownMenuItem>
               <DropdownMenuItem><Link href={`customers/${customer._id}/update`}>Update customer</Link></DropdownMenuItem>
+              <DropdownMenuItem><Link href={`customers/${customer._id}/custom`}>Add More</Link></DropdownMenuItem>
               <DropdownMenuItem onClick={()=>handleDelete(customer._id)}>Delete customer</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -178,6 +186,7 @@ export default function DataTableDemo() {
   catch(e){console.log("error",e)}
   }
   const handleDelete = async (id) => {
+    if(!window.confirm("Are you sure you want to Delete!"))return;
     const toastid = toast.loading("Deleting...");
     try {
       await deleteCustomercont(id);
