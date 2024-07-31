@@ -136,6 +136,7 @@ const page = ({ params }) => {
         return updatedFormData;
       });
     } else if (name === "mediaCount") {
+      if(!value) return;
       const count = parseInt(value, 10);
       if (count < 0) return; // Prevent negative values
 
@@ -289,7 +290,7 @@ const page = ({ params }) => {
           </label>
           <input
             autoFocus
-            className="p-1 border dark:border-white dark:bg-slate-950 border-black"
+            className="p-1 border dark:border-white dark:bg-slate-950 border-black w-full"
             type="date"
             name="date"
             value={formData.date}
@@ -302,7 +303,7 @@ const page = ({ params }) => {
             Delivery Date:&nbsp;
           </label>
           <input
-            className="p-1 border dark:border-white dark:bg-slate-950 border-black"
+            className="p-1 border dark:border-white dark:bg-slate-950 border-black w-full"
             type="date"
             name="expectedDeliveryDate"
             value={formData.expectedDeliveryDate}

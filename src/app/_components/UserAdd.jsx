@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState,useContext } from 'react';
 import { toast } from "sonner"
 import { CustomerContext } from './CustomerContext';
 
@@ -113,6 +113,7 @@ const UserAdd = () => {
         return updatedFormData;
       });
     } else if (name === 'mediaCount') {
+      if(!value) return;
       const count = parseInt(value, 10);
       if (count < 0) return; // Prevent negative values
   
@@ -248,11 +249,11 @@ const UserAdd = () => {
       <form className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 place-items-center gap-4' onSubmit={handleCreate}>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Order Date:&nbsp;</label>
-        <input autoFocus className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="date" name='date' value={formData.date} required={true} onChange={handleChange}/>
+        <input autoFocus className='p-1 border dark:border-white dark:bg-slate-950 border-black w-full' type="date" name='date' value={formData.date} required={true} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Delivery Date:&nbsp;</label>
-        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="date" name='expectedDeliveryDate' value={formData.expectedDeliveryDate} required={true} onChange={handleChange}/>
+        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black w-full' type="date" name='expectedDeliveryDate' value={formData.expectedDeliveryDate} required={true} onChange={handleChange}/>
         </span>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Party Name:&nbsp;</label>
