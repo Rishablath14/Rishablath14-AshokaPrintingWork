@@ -90,22 +90,25 @@ const Dashboard = () => {
       const day = date.toLocaleString("default", { weekday: "long" });
       const dayOfMonth = date.getDate();
       const weekKey = `${year}-${month}-${day}`;
+      const status = sale.isCompleted;
 
-      if (!yearlySales[year]) yearlySales[year] = 0;
-      yearlySales[year] += sale.totalAmount;
-
-      if (!monthlySales[`${year}-${month}`])
-        monthlySales[`${year}-${month}`] = 0;
-      monthlySales[`${year}-${month}`] += sale.totalAmount;
-
+      if(status!=='canceled'){
+        if (!yearlySales[year]) yearlySales[year] = 0;
+        yearlySales[year] += sale.totalAmount;
+        
+        if (!monthlySales[`${year}-${month}`])
+          monthlySales[`${year}-${month}`] = 0;
+        monthlySales[`${year}-${month}`] += sale.totalAmount;
+        
       if (!weeklySales[weekKey]) weeklySales[weekKey] = 0;
       weeklySales[weekKey]+= sale.totalAmount;
-
+      
       if (!dailySales[`${year}-${month}-${dayOfMonth}`])
         dailySales[`${year}-${month}-${dayOfMonth}`] = 0;
       dailySales[`${year}-${month}-${dayOfMonth}`] += sale.totalAmount;
+    }
     });
-
+    
     return {
       dailySales: Object.entries(dailySales).map(([key, value]) => ({
         x: key,
@@ -128,7 +131,6 @@ const Dashboard = () => {
 
   const processedData = processData(customers);
   const { yearlySales = [], monthlySales = [], weeklySales = [], dailySales = [] } = processedData;
-
   const getChartData = () => {
     let data = [];
     if (chartType === 'daily' && selectedMonth && selectedYear) {
