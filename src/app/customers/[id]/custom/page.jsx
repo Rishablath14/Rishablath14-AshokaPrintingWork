@@ -1,10 +1,11 @@
 "use client";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { CustomerContext } from "@/app/_components/CustomerContext";
+import { useParams } from 'next/navigation';
+import { addCustomer, getCustomerById } from "@/app/actions/customer.action";
 
-const page = ({ params }) => {
-  const { addCustomercont, getCustomercont } = useContext(CustomerContext);
+const page = () => {
+  const { id } = useParams();
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -99,27 +100,33 @@ const page = ({ params }) => {
     },
   });
   useEffect(() => {
-    const fetchData = async () => {
+    if (formData.partyName || formData.mobile) {
+      return;
+    }
+
+    const fetchCustomer = async () => {
       try {
-        const data = await getCustomercont(params.id);
-        if (data && data.length > 0) {
-          const oneCustomer = data[0];
-          setFormData({
-            ...formData,
-            partyName: oneCustomer.partyName,
-            address: oneCustomer.address,
-            mobile: oneCustomer.mobile,
-            email: oneCustomer.email,
-            gstNo: oneCustomer.gstNo,
-          });
+        if (!id) return;
+        const customer = await getCustomerById(id);
+        if (!customer) {
+          return;
         }
+
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          partyName: customer.partyName,
+          address: customer.address,
+          mobile: customer.mobile,
+          email: customer.email,
+          gstNo: customer.gstNo,
+        }));
       } catch (error) {
         console.error("Error fetching customer data:", error);
       }
     };
 
-    fetchData();
-  }, [params.id, getCustomercont]);
+    fetchCustomer();
+  }, [formData.mobile, formData.partyName, id]);
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -178,7 +185,7 @@ const page = ({ params }) => {
       return;
     }
     try {
-      await addCustomercont(formData);
+      await addCustomer(formData);
       toast.success("Customer Saved Successfully", { id: toastid });
       setFormData({
         date: "",
@@ -279,9 +286,15 @@ const page = ({ params }) => {
   };
 
   return (
-    <div className="w-full min-h-screen p-4 md:p-8">
+    <div className="job-form-shell space-y-6">
+      <section className="page-hero">
+        <span className="page-kicker">Repeat Customer</span>
+        <h1 className="page-title md:text-4xl">Add Another Job</h1>
+        <p className="page-copy">Customer details stay filled. Enter the new job details below.</p>
+      </section>
+      <div className="job-form-panel">
       <form
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 place-items-center gap-4"
+        className="job-form-grid"
         onSubmit={handleCreate}
       >
         <span className="flex flex-col gap-2 w-full">
@@ -954,7 +967,7 @@ const page = ({ params }) => {
             onChange={handleChange}
           />
         </span>
-        <span className="flex flex-col gap-2 w-full">
+        <span className="media-count-card flex flex-col gap-2 w-full">
           <label className="text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center">
             Number of Media:&nbsp;
           </label>
@@ -967,53 +980,53 @@ const page = ({ params }) => {
           />
         </span>
         {Array.from({ length: formData.mediaCount }, (_, i) => (
-          <div
-            key={i}
-            className="w-full grid grid-cols-3 col-span-1 sm:col-span-3 gap-8 md:gap-6 bg-slate-600 place-items-center border border-black dark:border-white p-1 rounded-md"
-          >
-            <span className="flex flex-col gap-2 w-full">
-              <label className="text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center">
-                Media Type {i + 1}:&nbsp;
-              </label>
-              <select
-                className="p-1 border dark:border-white dark:bg-slate-950 border-black"
-                name={`mediaDetails.${i}.type`}
-                value={formData.mediaDetails[i]?.type || ""}
-                onChange={handleChange}
-              >
-                <option value="">Select Media Type</option>
-                <option value="vinyl">Vinyl</option>
-                <option value="t-vinyl">T-Vinyl</option>
-                <option value="retro">Retro</option>
-                <option value="oneway">One Way</option>
-                <option value="normal-flex">Normal Flex</option>
-                <option value="star-flex">Star Flex</option>
-              </select>
-            </span>
-            <span className="flex flex-col gap-2 w-full my-2">
-              <label className="text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center">
-                Media Rate {i + 1}:&nbsp;
-              </label>
-              <input
-                className="p-1 border dark:border-white dark:bg-slate-950 border-black"
-                type="number"
-                name={`mediaDetails.${i}.rate`}
-                value={formData.mediaDetails[i]?.rate || ""}
-                onChange={handleChange}
-              />
-            </span>
-            <span className="flex flex-col gap-2 w-full">
-              <label className="text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center">
-                Media Size {i + 1}:&nbsp;
-              </label>
-              <input
-                className="p-1 border dark:border-white dark:bg-slate-950 border-black"
-                type="text"
-                name={`mediaDetails.${i}.size`}
-                value={formData.mediaDetails[i]?.size || ""}
-                onChange={handleChange}
-              />
-            </span>
+          <div key={i} className="media-item-card">
+            <div className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">Media {i + 1}</div>
+            <div className="media-item-grid">
+              <span className="flex flex-col gap-2 w-full">
+                <label className="text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center">
+                  Media Type:&nbsp;
+                </label>
+                <select
+                  className="p-1 border dark:border-white dark:bg-slate-950 border-black"
+                  name={`mediaDetails.${i}.type`}
+                  value={formData.mediaDetails[i]?.type || ""}
+                  onChange={handleChange}
+                >
+                  <option value="">Select Media Type</option>
+                  <option value="vinyl">Vinyl</option>
+                  <option value="t-vinyl">T-Vinyl</option>
+                  <option value="retro">Retro</option>
+                  <option value="oneway">One Way</option>
+                  <option value="normal-flex">Normal Flex</option>
+                  <option value="star-flex">Star Flex</option>
+                </select>
+              </span>
+              <span className="flex flex-col gap-2 w-full">
+                <label className="text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center">
+                  Media Rate:&nbsp;
+                </label>
+                <input
+                  className="p-1 border dark:border-white dark:bg-slate-950 border-black"
+                  type="number"
+                  name={`mediaDetails.${i}.rate`}
+                  value={formData.mediaDetails[i]?.rate || ""}
+                  onChange={handleChange}
+                />
+              </span>
+              <span className="flex flex-col gap-2 w-full">
+                <label className="text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center">
+                  Media Size:&nbsp;
+                </label>
+                <input
+                  className="p-1 border dark:border-white dark:bg-slate-950 border-black"
+                  type="text"
+                  name={`mediaDetails.${i}.size`}
+                  value={formData.mediaDetails[i]?.size || ""}
+                  onChange={handleChange}
+                />
+              </span>
+            </div>
           </div>
         ))}
         <span className="flex flex-col gap-2 w-full">
@@ -1331,6 +1344,7 @@ const page = ({ params }) => {
           Add Customer
         </button>
       </form>
+      </div>
     </div>
   );
 };

@@ -1,351 +1,472 @@
 "use client";
-import React, { useContext, useEffect, useState } from "react";
-import { BadgeIndianRupee, IndianRupee, BookUser, User } from "lucide-react";
+
+import React, { useContext, useMemo } from "react";
+import Link from "next/link";
+import {
+  ArrowRight,
+  BriefcaseBusiness,
+  Clock3,
+  IndianRupee,
+  PackageCheck,
+  WalletCards,
+} from "lucide-react";
+import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from "chart.js";
+import { Line } from "react-chartjs-2";
+import { useTheme } from "next-themes";
 import DashTableDemo from "./DashTable";
 import { CustomerContext } from "./CustomerContext";
-import {
-  Chart,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import { Line } from "react-chartjs-2";
-Chart.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import { Button } from "@/components/ui/button";
+
+Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
+
+const chartViews = [
+  { label: "Yearly", value: "yearly" },
+  { label: "Monthly", value: "monthly" },
+  { label: "Weekly", value: "weekly" },
+  { label: "Daily", value: "daily" },
+];
+
+const formatAmount = (value) =>
+  new Intl.NumberFormat("en-IN", {
+    maximumFractionDigits: 0,
+  }).format(Number(value) || 0);
+
+const formatCurrency = (value) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(Number(value) || 0);
+
+const formatDate = (value) =>
+  new Intl.DateTimeFormat("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value));
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const processSales = (customers) => {
+  const monthlySales = {};
+  const weeklySales = {};
+  const yearlySales = {};
+  const dailySales = {};
+
+  customers.forEach((sale) => {
+    if (sale.isCompleted === "canceled") {
+      return;
+    }
+
+    const date = new Date(sale.date);
+    const year = String(date.getFullYear());
+    const month = date.toLocaleString("en-US", { month: "short" });
+    const dayOfMonth = date.getDate();
+    
+    // Calculate week of the month (Week 1, Week 2, etc.)
+    const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+    const pastDays = date.getDate() - 1;
+    const weekNum = Math.ceil((pastDays + startOfMonth.getDay() + 1) / 7);
+    const weekOfMonth = `Week ${weekNum}`;
+
+    const amount = Number(sale.totalAmount) || 0;
+
+    yearlySales[year] = (yearlySales[year] || 0) + amount;
+    monthlySales[`${year}-${month}`] = (monthlySales[`${year}-${month}`] || 0) + amount;
+    weeklySales[`${year}-${month}-${weekOfMonth}`] = (weeklySales[`${year}-${month}-${weekOfMonth}`] || 0) + amount;
+    dailySales[`${year}-${month}-${dayOfMonth}`] = (dailySales[`${year}-${month}-${dayOfMonth}`] || 0) + amount;
+  });
+
+  const monthOrder = { Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6, Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12 };
+
+  const toEntries = (record, type) =>
+    Object.entries(record)
+      .map(([x, y]) => ({ x, y }))
+      .sort((a, b) => {
+        if (type === "yearly") return a.x.localeCompare(b.x);
+        
+        const partsA = a.x.split('-');
+        const partsB = b.x.split('-');
+        
+        if (partsA[0] !== partsB[0]) return partsA[0].localeCompare(partsB[0]);
+        
+        if (type === "monthly") {
+          return (monthOrder[partsA[1]] || 0) - (monthOrder[partsB[1]] || 0);
+        }
+        
+        if (type === "weekly") {
+          if (partsA[1] !== partsB[1]) return (monthOrder[partsA[1]] || 0) - (monthOrder[partsB[1]] || 0);
+          return partsA[2].localeCompare(partsB[2]);
+        }
+        
+        if (type === "daily") {
+          if (partsA[1] !== partsB[1]) return (monthOrder[partsA[1]] || 0) - (monthOrder[partsB[1]] || 0);
+          return parseInt(partsA[2]) - parseInt(partsB[2]);
+        }
+
+        return 0;
+      });
+
+  return {
+    dailySales: toEntries(dailySales, "daily"),
+    weeklySales: toEntries(weeklySales, "weekly"),
+    monthlySales: toEntries(monthlySales, "monthly"),
+    yearlySales: toEntries(yearlySales, "yearly"),
+  };
+};
 
 const Dashboard = () => {
   const { customers } = useContext(CustomerContext);
-  const [aggregateData, setAggregateData] = useState({
-    totalSales: 0,
-    totalCustomers: 0,
-    totalBalance: 0,
-  });
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.toLocaleString("default", { month: "short" });
-  const [chartType, setChartType] = useState("monthly");
-  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-  const [selectedYear, setSelectedYear] = useState(currentYear);
-  const [theme, setTheme] = useState('light');
+  const { resolvedTheme } = useTheme();
+  const theme = resolvedTheme === "dark" ? "dark" : "light";
 
-  useEffect(() => {
-    // Check for dark mode class on the document element
-    const handleThemeChange = () => {
-      if (document.documentElement.classList.contains('dark')) {
-        setTheme('dark');
-      } else {
-        setTheme('light');
-      }
-    };
+  const aggregates = useMemo(
+    () =>
+      customers.reduce(
+        (acc, customer) => {
+          const totalAmount = Number(customer.totalAmount) || 0;
+          const advance = Number(customer.advance) || 0;
+          const expectedDate = new Date(customer.expectedDeliveryDate);
 
-    handleThemeChange(); // Initial check
-    // Listen for changes to the theme class
-    const observer = new MutationObserver(handleThemeChange);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
+          if (customer.isCompleted !== "canceled") {
+            acc.totalSales += totalAmount;
+            acc.totalBalance += totalAmount - advance;
+            acc.totalCustomers += 1;
+          }
 
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-  useEffect(() => {
-    const totalValues = async () => {
-      let amount = 0;
-      let balance = 0;
-      let custNum = 0;;
-      customers.map((customer) => {if(customer.isCompleted!=='canceled'){amount += Number(customer.totalAmount);balance += Number(customer.totalAmount) - Number(customer.advance);custNum++;}});
-      const data = {
-        totalSales: amount,
-        totalCustomers: custNum,
-        totalBalance: balance,
-      };
-      setAggregateData(data);
-    };
-    totalValues();
-  }, [customers]);
+          if (customer.isCompleted === "progress") {
+            acc.activeJobs += 1;
+          }
 
-  const processData = (data) => {
-    const monthlySales = {};
-    const weeklySales = {};
-    const yearlySales = {};
-    const dailySales = {};
+          if (customer.isCompleted === "completed") {
+            acc.completedJobs += 1;
+          }
 
-    data.forEach((sale) => {
-      const date = new Date(sale.date);
-      const year = date.getFullYear();
-      const month = date.toLocaleString("default", { month: "short" });
-      const day = date.toLocaleString("default", { weekday: "long" });
-      const dayOfMonth = date.getDate();
-      const weekKey = `${year}-${month}-${day}`;
-      const status = sale.isCompleted;
+          if (customer.isCompleted === "progress" && expectedDate < today) {
+            acc.overdueJobs += 1;
+          }
 
-      if(status!=='canceled'){
-        if (!yearlySales[year]) yearlySales[year] = 0;
-        yearlySales[year] += sale.totalAmount;
-        
-        if (!monthlySales[`${year}-${month}`])
-          monthlySales[`${year}-${month}`] = 0;
-        monthlySales[`${year}-${month}`] += sale.totalAmount;
-        
-      if (!weeklySales[weekKey]) weeklySales[weekKey] = 0;
-      weeklySales[weekKey]+= sale.totalAmount;
-      
-      if (!dailySales[`${year}-${month}-${dayOfMonth}`])
-        dailySales[`${year}-${month}-${dayOfMonth}`] = 0;
-      dailySales[`${year}-${month}-${dayOfMonth}`] += sale.totalAmount;
+          return acc;
+        },
+        {
+          totalSales: 0,
+          totalBalance: 0,
+          totalCustomers: 0,
+          activeJobs: 0,
+          completedJobs: 0,
+          overdueJobs: 0,
+        },
+      ),
+    [customers],
+  );
+
+  const sales = useMemo(() => processSales(customers), [customers]);
+  const yearOptions = useMemo(() => [...new Set(sales.yearlySales.map(({ x }) => x))], [sales.yearlySales]);
+  const currentYear = yearOptions.at(-1) || String(new Date().getFullYear());
+  const currentMonth = new Date().toLocaleString("default", { month: "short" });
+
+  const [chartType, setChartType] = React.useState("monthly");
+  const [selectedYear, setSelectedYear] = React.useState("");
+  const [selectedMonth, setSelectedMonth] = React.useState(currentMonth);
+  const activeYear = selectedYear || currentYear;
+
+  const chartDataSource = useMemo(() => {
+    if (chartType === "daily") {
+      return sales.dailySales.filter((item) => item.x.startsWith(`${activeYear}-${selectedMonth}`));
     }
-    });
-    
-    return {
-      dailySales: Object.entries(dailySales).map(([key, value]) => ({
-        x: key,
-        y: value,
-      })).sort((a, b) => new Date(a.x) - new Date(b.x)),
-      yearlySales: Object.entries(yearlySales).map(([key, value]) => ({
-        x: key,
-        y: value,
-      })).sort((a, b) => new Date(a.x) - new Date(b.x)),
-      monthlySales: Object.entries(monthlySales).map(([key, value]) => ({
-        x: key,
-        y: value,
-      })).sort((a, b) => new Date(a.x) - new Date(b.x)),
-      weeklySales: Object.entries(weeklySales).map(([key, value]) => ({
-        x: key,
-        y: value,
-      })).sort((a, b) => new Date(a.x) - new Date(b.x)),
-    };
-  };
 
-  const processedData = processData(customers);
-  const { yearlySales = [], monthlySales = [], weeklySales = [], dailySales = [] } = processedData;
-  const getChartData = () => {
-    let data = [];
-    if (chartType === 'daily' && selectedMonth && selectedYear) {
-      data = dailySales.filter(d => d.x.startsWith(`${selectedYear}-${selectedMonth}`));
-    } else if (chartType === 'weekly' && selectedMonth && selectedYear) {
-      data = weeklySales.filter(d => d.x.startsWith(`${selectedYear}-${selectedMonth}`))
-    } else if (chartType === 'monthly' && selectedYear) {
-      data = monthlySales.filter(d => d.x.startsWith(`${selectedYear}`));
-    } else {
-      data = yearlySales;
+    if (chartType === "weekly") {
+      return sales.weeklySales.filter((item) => item.x.startsWith(`${activeYear}-${selectedMonth}`));
     }
-    return data;
-  };
 
-  const data = {
-    labels: getChartData().flatMap(item => item.x),
-    datasets: [
-      {
-        label: "Total Sales",
-        data: getChartData().map((item) => item.y),
-        fill: false,
-        borderColor: "rgba(75,192,192,1)",
-        tension: 0.1,
-      },
-    ],
-  };
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        labels: {
-          color: theme === 'dark' ? 'white' : 'black', // Change legend text color based on theme
-        },
-      },
-      tooltip: {
-        titleColor: 'white', // Change tooltip title color based on theme
-        bodyColor: 'white', // Change tooltip body color based on theme
-      },
-    },
-    scales: {
-      x: {
-        ticks: {
-          color: theme === 'dark' ? 'white' : 'black', // Change X-axis ticks color based on theme
-        },
-        grid: {
-          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)', // Change X-axis grid color based on theme
-        },
-      },
-      y: {
-        ticks: {
-          color: theme === 'dark' ? 'white' : 'black', // Change Y-axis ticks color based on theme
-        },
-        grid: {
-          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)', // Change Y-axis grid color based on theme
-        },
-      },
-    },
-  };
+    if (chartType === "monthly") {
+      return sales.monthlySales.filter((item) => item.x.startsWith(activeYear));
+    }
 
-  const handleYearChange = (e) => {
-    setSelectedYear(e.target.value);
-  };
+    return sales.yearlySales;
+  }, [activeYear, chartType, sales.dailySales, sales.monthlySales, sales.weeklySales, sales.yearlySales, selectedMonth]);
 
-  const handleMonthChange = (e) => {
-    setSelectedMonth(e.target.value);
-  };
-  const formatAmount=(amt)=>{
-    const formatted = new Intl.NumberFormat("en-US", {
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0
-        }).format(amt);
-    return formatted;    
-  }
-  if (customers.length < 1) {
-    <div className="w-full min-h-[calc(100vh-96px)] flex justify-center items-center">
-      Loading...
-    </div>;
-  }
+  const chartData = useMemo(
+    () => ({
+      labels: chartDataSource.map((item) => item.x),
+      datasets: [
+        {
+          label: "Sales",
+          data: chartDataSource.map((item) => item.y),
+          borderColor: theme === "dark" ? "rgba(56, 189, 248, 1)" : "rgba(3, 105, 161, 1)",
+          backgroundColor: theme === "dark" ? "rgba(56, 189, 248, 0.18)" : "rgba(3, 105, 161, 0.12)",
+          fill: true,
+          tension: 0.35,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+        },
+      ],
+    }),
+    [chartDataSource, theme],
+  );
+
+  const chartOptions = useMemo(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          backgroundColor: theme === "dark" ? "rgba(15, 23, 42, 0.96)" : "rgba(255, 255, 255, 0.98)",
+          titleColor: theme === "dark" ? "#e2e8f0" : "#0f172a",
+          bodyColor: theme === "dark" ? "#cbd5e1" : "#334155",
+          borderColor: theme === "dark" ? "rgba(148, 163, 184, 0.2)" : "rgba(148, 163, 184, 0.35)",
+          borderWidth: 1,
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: theme === "dark" ? "#94a3b8" : "#64748b",
+          },
+          grid: {
+            color: theme === "dark" ? "rgba(51, 65, 85, 0.6)" : "rgba(226, 232, 240, 0.8)",
+          },
+        },
+        y: {
+          ticks: {
+            color: theme === "dark" ? "#94a3b8" : "#64748b",
+            callback: (value) => formatAmount(value),
+          },
+          grid: {
+            color: theme === "dark" ? "rgba(51, 65, 85, 0.6)" : "rgba(226, 232, 240, 0.8)",
+          },
+        },
+      },
+    }),
+    [theme],
+  );
+
+  const recentJobs = useMemo(() => customers.slice(0, 1), [customers]);
+  const monthOptions = useMemo(
+    () =>
+      [...new Set(
+        sales.monthlySales
+          .filter(({ x }) => x.startsWith(activeYear))
+          .map(({ x }) => x.split("-")[1]),
+      )],
+    [activeYear, sales.monthlySales],
+  );
+
+  const chartKey = `${theme}-${chartType}-${activeYear}-${selectedMonth}`;
+
   return (
-    <div>
-      <div className="flex justify-around gap-2 md:gap-4 items-center mb-6">
-        <div className="w-full shadow-md border border-black dark:border-white p-2 md:p-4 rounded-lg">
-          <div className="flex justify-between w-full">
-            <h2 className="text-sm sm:text-base">Total Revenue</h2>
-            <span className="">
-              <BadgeIndianRupee />
-            </span>
+    <div className="space-y-6">
+      <section className="page-hero">
+        <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+          <div>
+            <h1 className="page-title">Dashboard Overview</h1>
+            <p className="page-copy">Key metrics and recent activity for your printing operations.</p>
           </div>
-          <h3 className="font-bold text-base sm:text-xl md:text-3xl mt-3 flex items-center">
-            <IndianRupee className="w-[12px] xs:w-[15px] md:w-[30px]" />
-            {formatAmount(aggregateData.totalSales)}
-          </h3>
+
+          <div className="flex flex-wrap gap-3">
+            <Button asChild>
+              <Link href="/add">
+                New Job
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/customers">Browse All Jobs</Link>
+            </Button>
+          </div>
         </div>
-        <div className="w-full shadow-md border border-black dark:border-white p-2 md:p-4 rounded-lg">
-          <div className="flex justify-between w-full">
-            <h2 className="text-sm sm:text-base">Total Customers</h2>
-            <span className="">
-              <BookUser />
-            </span>
-          </div>
-          <h3 className="font-bold text-base sm:text-xl md:text-3xl mt-3 flex gap-1 items-center">
-            <User className="w-[12px] xs:w-[15px] md:w-[30px]"/>
-            {aggregateData.totalCustomers}
-          </h3>
-        </div>
-        <div className="w-full shadow-md border border-black dark:border-white p-2 md:p-4 rounded-lg">
-          <div className="flex justify-between w-full">
-            <h2 className="text-sm mr-1 sm:mr-0 sm:text-base">Total Balance</h2>
-            <span className="">
-              <BadgeIndianRupee />
-            </span>
-          </div>
-          <h3 className="font-bold text-base sm:text-xl md:text-3xl mt-3 flex  items-center">
-            <IndianRupee className="w-[12px] xs:w-[15px] md:w-[30px]"/>
-            {formatAmount(aggregateData.totalBalance)}
-          </h3>
-        </div>
-      </div>
-      <DashTableDemo />
-      { <div className="w-[100%] lg:w-[90%] xl:w-[80%] xlx:w-[80%] mx-auto my-6 rounded-lg border bg-white dark:bg-slate-900 dark:text-white p-3 shadow-md">
-        <h1 className="text-2xl font-bold">Sales Statistics</h1>
-        <div className="w-full flex flex-row justify-between flex-wrap">
-          <div className="flex flex-row justify-start gap-3 md:gap-5 my-3 items-center">
-            <div className="flex flex-row gap-1">
-              <input
-                className="form-check-input"
-                type="radio"
-                name="chartType"
-                value="yearly"
-                checked={chartType === "yearly"}
-                onChange={() => setChartType("yearly")}
-              />
-              <label className="text-sm xs:text-base">Yearly</label>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <article className="metric-card">
+          <p className="metric-label">Total Revenue</p>
+          <div className="mt-4 flex items-center gap-3">
+            <div className="rounded-2xl bg-sky-100 p-3 text-sky-700 dark:bg-sky-400/10 dark:text-sky-200">
+              <IndianRupee className="h-5 w-5" />
             </div>
-            <div className="flex flex-row gap-1">
-              <input
-                className="form-check-input"
-                type="radio"
-                name="chartType"
-                value="monthly"
-                checked={chartType === "monthly"}
-                onChange={() => setChartType("monthly")}
-              />
-              <label className="text-sm sm:text-base">Monthly</label>
-            </div>
-            <div className="flex flex-row gap-1">
-              <input
-                className="form-check-input"
-                type="radio"
-                name="chartType"
-                value="weekly"
-                checked={chartType === "weekly"}
-                onChange={() => setChartType("weekly")}
-              />
-              <label className="text-sm xs:text-base">Weekly</label>
-            </div>
-            <div className="flex flex-row gap-1">
-              <input
-                className="form-check-input"
-                type="radio"
-                name="chartType"
-                value="daily"
-                checked={chartType === "daily"}
-                onChange={() => setChartType("daily")}
-              />
-              <label className="text-sm xs:text-base">Daily</label>
+            <div>
+              <p className="metric-value mt-0">{formatAmount(aggregates.totalSales)}</p>
+              <p className="metric-footnote">Gross earnings across all jobs</p>
             </div>
           </div>
-          {["monthly", "weekly", "daily"].includes(chartType) && (
-            <div className="flex flex-row gap-3 flex-wrap">
-              <div className="w-full md:w-auto flex justify-start md:justify-end gap-2">
-                <label className="my-auto text-lg">Select Year</label>
+        </article>
+
+        <article className="metric-card">
+          <p className="metric-label">Outstanding Balance</p>
+          <div className="mt-4 flex items-center gap-3">
+            <div className="rounded-2xl bg-amber-100 p-3 text-amber-700 dark:bg-amber-400/10 dark:text-amber-200">
+              <WalletCards className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="metric-value mt-0">{formatAmount(aggregates.totalBalance)}</p>
+              <p className="metric-footnote">Pending payments to collect</p>
+            </div>
+          </div>
+        </article>
+
+        <article className="metric-card">
+          <p className="metric-label">Active Projects</p>
+          <div className="mt-4 flex items-center gap-3">
+            <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-200">
+              <BriefcaseBusiness className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="metric-value mt-0">{aggregates.activeJobs}</p>
+              <p className="metric-footnote">{aggregates.completedJobs} projects completed</p>
+            </div>
+          </div>
+        </article>
+
+        <article className="metric-card">
+          <p className="metric-label">Overdue Deliveries</p>
+          <div className="mt-4 flex items-center gap-3">
+            <div className="rounded-2xl bg-rose-100 p-3 text-rose-700 dark:bg-rose-400/10 dark:text-rose-200">
+              <Clock3 className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="metric-value mt-0">{aggregates.overdueJobs}</p>
+              <p className="metric-footnote">Requires immediate attention</p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[1.35fr_0.9fr]">
+        <div className="surface-card p-5 md:p-6 min-w-0">
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <h2 className="section-heading">Revenue Trends</h2>
+                <p className="section-copy">Track financial performance across multiple timeframes.</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {chartViews.map((view) => (
+                  <button
+                    key={view.value}
+                    type="button"
+                    onClick={() => setChartType(view.value)}
+                    className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                      chartType === view.value
+                        ? "bg-slate-900 text-white dark:bg-sky-400 dark:text-slate-950"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                    }`}
+                  >
+                    {view.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {["monthly", "weekly", "daily"].includes(chartType) && (
+              <div className="flex flex-col gap-3 md:flex-row">
                 <select
-                  className="form-select w-25 p-2 rounded-md border border-gray-300 dark:bg-slate-900"
-                  onChange={handleYearChange}
-                  value={selectedYear}
+                  className="h-11 rounded-2xl border border-white/70 bg-white/80 px-4 text-sm shadow-sm dark:border-white/10 dark:bg-slate-950/70"
+                  onChange={(event) => setSelectedYear(event.target.value)}
+                    value={activeYear}
                 >
-                  <option value="">Select Year</option>
-                  {yearlySales.map(({ x }) => (
-                    <option key={x} value={x}>
-                      {x}
+                  <option value="">Select year</option>
+                  {yearOptions.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
                     </option>
                   ))}
                 </select>
+
+                {["weekly", "daily"].includes(chartType) && (
+                  <select
+                    className="h-11 rounded-2xl border border-white/70 bg-white/80 px-4 text-sm shadow-sm dark:border-white/10 dark:bg-slate-950/70"
+                    onChange={(event) => setSelectedMonth(event.target.value)}
+                    value={selectedMonth}
+                    disabled={!activeYear}
+                  >
+                    <option value="">Select month</option>
+                    {monthOptions.map((month) => (
+                      <option key={month} value={month}>
+                        {month}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
-              {["weekly", "daily"].includes(chartType) &&
-              <div className="w-full md:w-auto flex justify-start md:justify-end gap-2">
-                <label className="my-auto text-lg">Select Month</label>
-                <select
-                  className="form-select w-25 p-2 rounded-md border border-gray-300 dark:bg-slate-900"
-                  onChange={handleMonthChange}
-                  value={selectedMonth}
-                  disabled={!selectedYear}
-                >
-                  <option value="">Select Month</option>
-                  {selectedYear &&
-                    monthlySales
-                      .filter(({ x }) => x.startsWith(selectedYear))
-                      .map(({ x }) => {
-                        const month = x.split("-")[1];
-                        return (
-                          <option key={month} value={month}>
-                            {month}
-                          </option>
-                        );
-                      })}
-                </select>
-              </div>
-              }
+            )}
+
+            <div className="h-[320px] min-w-0 overflow-hidden">
+              {chartDataSource.length ? (
+                <div className="h-full w-full">
+                  <Line key={chartKey} data={chartData} options={chartOptions} />
+                </div>
+              ) : (
+                <div className="surface-card-muted flex h-full items-center justify-center p-6 text-center text-sm text-slate-500 dark:text-slate-400">
+                  No sales data is available for the selected view yet.
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
-        <Line data={data} className="overflow-x-auto" options={options}/>
-      </div>
-      }
+
+        <div className="space-y-6">
+          <div className="surface-card p-5 md:p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="section-heading">Operational Summary</h2>
+                <p className="section-copy">Quick view of your system resources.</p>
+              </div>
+              <PackageCheck className="h-5 w-5 text-slate-400" />
+            </div>
+
+            <div className="mt-5 space-y-3">
+              <div className="surface-card-muted flex items-center justify-between p-4">
+                <span className="text-sm text-slate-500 dark:text-slate-400">Total Active Jobs</span>
+                <span className="text-lg font-semibold text-slate-900 dark:text-white">{aggregates.activeJobs}</span>
+              </div>
+              <div className="surface-card-muted flex items-center justify-between p-4">
+                <span className="text-sm text-slate-500 dark:text-slate-400">Total Completed</span>
+                <span className="text-lg font-semibold text-slate-900 dark:text-white">{aggregates.completedJobs}</span>
+              </div>
+              <div className="surface-card-muted flex items-center justify-between p-4">
+                <span className="text-sm text-slate-500 dark:text-slate-400">Total Customers</span>
+                <span className="text-lg font-semibold text-slate-900 dark:text-white">{aggregates.totalCustomers}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="surface-card p-5 md:p-6">
+<h2 className="section-heading">Recent Job</h2>
+          <p className="section-copy mt-1">Latest printing order added to the system.</p>
+
+            <div className="mt-5 space-y-3">
+              {recentJobs.length ? recentJobs.map((job) => (
+                <Link
+                  key={job._id}
+                  href={`/customers/${job._id}`}
+                  className="surface-card-muted flex items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5"
+                >
+                  <div>
+                    <p className="font-semibold text-slate-900 dark:text-white">{job.partyName || "Untitled job"}</p>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      {formatDate(job.date)} · {job.billNumber ? `Bill ${job.billNumber}` : "Bill pending"}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold text-slate-900 dark:text-white">{formatCurrency(job.totalAmount)}</p>
+                    <p className="mt-1 text-xs uppercase tracking-[0.14em] text-slate-400">{job.isCompleted}</p>
+                  </div>
+                </Link>
+              )) : (
+                <div className="surface-card-muted p-4 text-sm text-slate-500 dark:text-slate-400">
+                  No jobs created yet.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <DashTableDemo />
     </div>
   );
 };

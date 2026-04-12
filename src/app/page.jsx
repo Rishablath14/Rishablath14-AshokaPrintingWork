@@ -3,7 +3,7 @@ import Dashboard from './_components/Dashboard'
 
 const page = async () => {
   return (
-    <div className='mt-4 mx-2 md:mx-4'>
+    <div className='page-shell'>
       <Dashboard/>
     </div>
   )

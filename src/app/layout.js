@@ -1,12 +1,15 @@
 import { Toaster } from "@/components/ui/sonner"
-import { Lato } from "next/font/google";
+import { Manrope } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "./_components/themeProvider";
 import Header from "./_components/header";
-import { CustomerProvider } from "./_components/CustomerContext";
+import CustomerProviderGate from "./_components/customerProviderGate";
 
-const lato = Lato({ subsets: ["latin"],weight:['100','300','400','700','900'] ,variable:"--font-lato",});
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
+});
 
 export const metadata = {
   title: "APW DASHBOARD",
@@ -16,21 +19,21 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={cn("antialiased font-lato",lato.variable)}>
+    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
+      <body className={cn("antialiased", manrope.variable)}>
       <ThemeProvider
             attribute="class"
             defaultTheme="system"
             enableSystem
             disableTransitionOnChange
           >
-      <CustomerProvider>
+      <CustomerProviderGate>
       <Header/>
-      <main className="pt-16">
+      <main className="relative z-10 pt-4 md:pt-6">
       {children}
       </main>
       <Toaster richColors position="top-right"/>
-      </CustomerProvider>      
+      </CustomerProviderGate>      
       </ThemeProvider>  
       </body>
     </html>

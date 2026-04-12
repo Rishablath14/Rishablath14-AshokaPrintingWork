@@ -4,74 +4,280 @@
 
   @layer base {
     :root {
-      --background: 0 0% 100%;
-      --foreground: 222.2 84% 4.9%;
+      --background: 36 38% 97%;
+      --foreground: 212 32% 15%;
 
       --card: 0 0% 100%;
-      --card-foreground: 222.2 84% 4.9%;
+      --card-foreground: 212 32% 15%;
 
       --popover: 0 0% 100%;
-      --popover-foreground: 222.2 84% 4.9%;
+      --popover-foreground: 212 32% 15%;
 
-      --primary: 222.2 47.4% 11.2%;
-      --primary-foreground: 210 40% 98%;
+      --primary: 198 73% 24%;
+      --primary-foreground: 36 38% 97%;
 
-      --secondary: 210 40% 96.1%;
-      --secondary-foreground: 222.2 47.4% 11.2%;
+      --secondary: 34 56% 92%;
+      --secondary-foreground: 212 32% 15%;
 
-      --muted: 210 40% 96.1%;
-      --muted-foreground: 215.4 16.3% 46.9%;
+      --muted: 36 24% 92%;
+      --muted-foreground: 215 16% 39%;
 
-      --accent: 210 40% 96.1%;
-      --accent-foreground: 222.2 47.4% 11.2%;
+      --accent: 38 88% 94%;
+      --accent-foreground: 212 32% 15%;
 
       --destructive: 0 84.2% 60.2%;
       --destructive-foreground: 210 40% 98%;
 
-      --border: 214.3 31.8% 91.4%;
-      --input: 214.3 31.8% 91.4%;
-      --ring: 222.2 84% 4.9%;
+      --border: 28 18% 84%;
+      --input: 28 18% 84%;
+      --ring: 198 73% 24%;
 
-      --radius: 0.5rem;
+      --radius: 1rem;
     }
 
     .dark {
-      --background: 222.2 84% 4.9%;
-      --foreground: 210 40% 98%;
+      --background: 220 31% 9%;
+      --foreground: 36 35% 95%;
 
-      --card: 222.2 84% 4.9%;
-      --card-foreground: 210 40% 98%;
+      --card: 221 28% 12%;
+      --card-foreground: 36 35% 95%;
 
-      --popover: 222.2 84% 4.9%;
-      --popover-foreground: 210 40% 98%;
+      --popover: 221 28% 12%;
+      --popover-foreground: 36 35% 95%;
 
-      --primary: 210 40% 98%;
-      --primary-foreground: 222.2 47.4% 11.2%;
+      --primary: 192 72% 57%;
+      --primary-foreground: 220 31% 9%;
 
-      --secondary: 217.2 32.6% 17.5%;
-      --secondary-foreground: 210 40% 98%;
+      --secondary: 222 22% 18%;
+      --secondary-foreground: 36 35% 95%;
 
-      --muted: 217.2 32.6% 17.5%;
-      --muted-foreground: 215 20.2% 65.1%;
+      --muted: 220 19% 17%;
+      --muted-foreground: 214 16% 70%;
 
-      --accent: 217.2 32.6% 17.5%;
-      --accent-foreground: 210 40% 98%;
+      --accent: 216 19% 18%;
+      --accent-foreground: 36 35% 95%;
 
       --destructive: 0 62.8% 30.6%;
       --destructive-foreground: 210 40% 98%;
 
-      --border: 217.2 32.6% 17.5%;
-      --input: 217.2 32.6% 17.5%;
-      --ring: 212.7 26.8% 83.9%;
+      --border: 219 17% 22%;
+      --input: 219 17% 22%;
+      --ring: 192 72% 57%;
     }
   }
 
   @layer base {
+    html {
+      scroll-behavior: smooth;
+    }
+
     * {
       @apply border-border;
     }
+
     body {
       @apply bg-background text-foreground;
+      font-feature-settings: "ss01" 1, "cv08" 1;
+      font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+      background-image:
+        radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 28rem),
+        radial-gradient(circle at top right, rgba(249, 115, 22, 0.11), transparent 24rem),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(248, 245, 240, 0.96));
+      min-height: 100vh;
+    }
+
+    .dark body {
+      background-image:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 28rem),
+        radial-gradient(circle at top right, rgba(251, 146, 60, 0.08), transparent 24rem),
+        linear-gradient(180deg, rgba(15, 23, 42, 0.84), rgba(9, 14, 28, 0.98));
+    }
+
+    ::selection {
+      background: rgba(14, 165, 233, 0.22);
+    }
+  }
+
+  @layer components {
+    .page-shell {
+      @apply mx-auto w-full max-w-7xl px-4 pb-10 md:px-8 md:pb-14;
+    }
+
+    .page-hero {
+      @apply relative overflow-hidden rounded-[2rem] border border-white/70 bg-white/80 px-5 py-6 shadow-[0_24px_80px_-40px_rgba(15,23,42,0.45)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/70 md:px-8 md:py-8;
+    }
+
+    .page-hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -3rem -5rem auto;
+      height: 12rem;
+      width: 12rem;
+      border-radius: 9999px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.18), transparent 65%);
+      pointer-events: none;
+    }
+
+    .page-kicker {
+      @apply mb-3 inline-flex items-center rounded-full border border-sky-200/80 bg-sky-50 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.24em] text-sky-700 dark:border-sky-400/20 dark:bg-sky-400/10 dark:text-sky-200;
+    }
+
+    .page-title {
+      @apply max-w-3xl text-3xl font-semibold tracking-[-0.04em] text-slate-900 dark:text-white md:text-5xl;
+    }
+
+    .page-copy {
+      @apply mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300 md:text-base;
+    }
+
+    .surface-card {
+      @apply rounded-[1.75rem] border border-white/70 bg-white/80 shadow-[0_24px_70px_-42px_rgba(15,23,42,0.45)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/70;
+    }
+
+    .surface-card-muted {
+      @apply rounded-[1.5rem] border border-slate-200/80 bg-slate-50/75 dark:border-slate-800 dark:bg-slate-900/60;
+    }
+
+    .section-heading {
+      @apply text-lg font-semibold tracking-[-0.03em] text-slate-900 dark:text-white md:text-xl;
+    }
+
+    .section-copy {
+      @apply text-sm text-slate-500 dark:text-slate-400;
+    }
+
+    .metric-card {
+      @apply surface-card p-5 transition-transform duration-200 hover:-translate-y-1;
+    }
+
+    .metric-label {
+      @apply text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400;
+    }
+
+    .metric-value {
+      @apply mt-4 text-3xl font-semibold tracking-[-0.05em] text-slate-900 dark:text-white;
+    }
+
+    .metric-footnote {
+      @apply mt-2 text-sm text-slate-500 dark:text-slate-400;
+    }
+
+    .job-form-shell {
+      @apply page-shell;
+    }
+
+    .job-form-panel {
+      @apply surface-card p-4 md:p-6;
+    }
+
+    .job-form-grid {
+      @apply grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3;
+    }
+
+    .job-form-grid > span {
+      @apply rounded-[1.35rem] border border-slate-200/80 bg-white/85 p-3 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-950/60;
+    }
+
+    .media-count-card {
+      @apply sm:col-span-2 xl:col-span-1;
+    }
+
+    .media-item-card {
+      @apply col-span-1 rounded-[1.5rem] border border-slate-200/80 bg-slate-50/80 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/60 sm:col-span-2 xl:col-span-3;
+    }
+
+    .media-item-grid {
+      @apply grid grid-cols-1 gap-3 md:grid-cols-3;
+    }
+
+    .job-form-shell label,
+    .job-form-panel label {
+      color: rgb(100 116 139) !important;
+      font-size: 0.72rem !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.18em !important;
+      line-height: 1.1 !important;
+      text-transform: uppercase !important;
+      background: transparent !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+    }
+
+    .job-form-shell input,
+    .job-form-shell select,
+    .job-form-shell textarea,
+    .job-form-panel input,
+    .job-form-panel select,
+    .job-form-panel textarea {
+      width: 100% !important;
+      min-height: 2.95rem;
+      border-radius: 1rem !important;
+      border: 1px solid rgba(203, 213, 225, 0.9) !important;
+      background: rgba(255, 255, 255, 0.92) !important;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75) !important;
+      color: rgb(15 23 42) !important;
+      padding: 0.8rem 1rem !important;
+      transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+    }
+
+    .job-form-shell select,
+    .job-form-panel select,
+    .status-select {
+      appearance: none;
+      padding-right: 2.8rem !important;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364758b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-position: right 0.95rem center;
+      background-repeat: no-repeat;
+      background-size: 14px;
+    }
+
+    .dark .job-form-shell input,
+    .dark .job-form-shell select,
+    .dark .job-form-shell textarea,
+    .dark .job-form-panel input,
+    .dark .job-form-panel select,
+    .dark .job-form-panel textarea {
+      border-color: rgba(51, 65, 85, 0.95) !important;
+      background: rgba(15, 23, 42, 0.84) !important;
+      color: rgb(241 245 249) !important;
+      box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.08) !important;
+    }
+
+    .dark .job-form-shell select,
+    .dark .job-form-panel select,
+    .dark .status-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    }
+
+    .job-form-shell input:focus,
+    .job-form-shell select:focus,
+    .job-form-shell textarea:focus,
+    .job-form-panel input:focus,
+    .job-form-panel select:focus,
+    .job-form-panel textarea:focus {
+      outline: none !important;
+      border-color: rgba(14, 165, 233, 0.78) !important;
+      box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12) !important;
+      transform: translateY(-1px);
+    }
+
+    .job-form-shell button[type="submit"],
+    .job-form-panel button[type="submit"] {
+      @apply col-span-1 mt-2 h-12 rounded-2xl border-0 bg-primary text-primary-foreground shadow-[0_20px_35px_-20px_rgba(8,47,73,0.75)] sm:col-span-2 xl:col-span-3;
+    }
+
+    .job-form-shell button[type="submit"]:hover,
+    .job-form-panel button[type="submit"]:hover {
+      transform: translateY(-1px);
+    }
+
+    .auth-shell {
+      @apply page-shell min-h-[calc(100vh-9rem)] flex items-center;
+    }
+
+    .auth-card {
+      @apply surface-card grid w-full overflow-hidden lg:grid-cols-[1.1fr_0.9fr];
     }
   }
   

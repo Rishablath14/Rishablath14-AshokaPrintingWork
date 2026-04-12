@@ -2,60 +2,12 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 const PdfComp = ({ formData }) => {
-  const data = {
-    date: formData.date,
-    partyName: formData.partyName,
-    fileDetails: {
-      totalBookQuantity: formData.fileDetails.totalBookQuantity,
-      leavesPerBook: formData.fileDetails.leavesPerBook,
-      padQuantity: formData.fileDetails.padQuantity,
-      leavesPerPad: formData.fileDetails.leavesPerPad,
-      paperSize: formData.fileDetails.paperSize,
-      paperQuality: formData.fileDetails.paperQuality,
-      gramWeightOfPaper: formData.fileDetails.gramWeightOfPaper,
-      printCopies: {
-        quantity: formData.fileDetails.printCopies.quantity,
-        sides: formData.fileDetails.printCopies.sides,
-      },
-      watermarkPage: formData.fileDetails.watermarkPage,
-      inkColor: formData.fileDetails.inkColor,
-      paperColor: {
-        firstCopy: formData.fileDetails.paperColor.firstCopy,
-        secondCopy: formData.fileDetails.paperColor.secondCopy,
-        thirdCopy: formData.fileDetails.paperColor.thirdCopy,
-        fourthCopy: formData.fileDetails.paperColor.fourthCopy,
-        fifthCopy: formData.fileDetails.paperColor.fifthCopy,
-      },
-      graph: formData.fileDetails.graph,
-      serialNumFrom: formData.fileDetails.serialNumFrom,
-      serialNumTo: formData.fileDetails.serialNumTo,
-      bookNumFrom: formData.fileDetails.bookNumFrom,
-      bookNumTo: formData.fileDetails.bookNumTo,
-      perforation: formData.fileDetails.perforation,
-      perforationCopy: formData.fileDetails.perforationCopy,
-      PaperCutSize: formData.fileDetails.PaperCutSize,
-      plateNumber: formData.fileDetails.plateNumber,
-      binding: {
-        bindType: formData.fileDetails.binding.bindType,
-        bothSideCraft: formData.fileDetails.binding.bothSideCraft,
-        pad: formData.fileDetails.binding.pad,
-        register: formData.fileDetails.binding.register,
-      },
-      pdfPigmentation: {
-        single: formData.fileDetails.pdfPigmentation.single,
-        size: formData.fileDetails.pdfPigmentation.size,
-        quantity: formData.fileDetails.pdfPigmentation.quantity,
-        spiralBinding: formData.fileDetails.pdfPigmentation.spiralBinding,
-        otherJobs: formData.fileDetails.pdfPigmentation.otherJobs,
-        otherSize: formData.fileDetails.pdfPigmentation.otherSize,
-        otherQuantity: formData.fileDetails.pdfPigmentation.otherQuantity,
-      }
-    }
-  };
+  const data = formData || {};
 
   const fieldLabels = {
     date: 'Order Date',
     partyName: 'Party Name',
+    billNumber: 'Bill Number',
     totalBookQuantity: 'Book Quantity',
     leavesPerBook: 'Leaves Per Pad',
     padQuantity: 'Pad Quantity',
@@ -96,59 +48,136 @@ const PdfComp = ({ formData }) => {
 
   const generatePDF = () => {
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
 
-    doc.setFontSize(18);
-    const titleText = `${formData.partyName} Order Data -> ${formData.date}`;
-    const titleWidth = doc.getStringUnitWidth(titleText) * doc.internal.scaleFactor;
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const x = (pageWidth - titleWidth-40) / 2;
-    doc.text(titleText, x, 10,);
+    doc.setFontSize(12);
+    doc.setTextColor(15, 23, 42);
+    doc.text('Order Summary', 15, 20, { align: 'left' });
+
+    doc.setFontSize(9);
+    const generatedAt = new Date().toLocaleString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    doc.text(`Generated on: ${generatedAt}`, pageWidth - 15, 20, { align: 'right' });
+    doc.setLineWidth(0.5);
+    doc.line(15, 24, pageWidth - 15, 24);
 
     const tableColumn = ["Field", "Value"];
     const tableRows = [];
 
-    // Helper function to flatten and filter data
-    const flattenData = (data, prefix = '') => {
-      for (const key in data) {
-        if (data.hasOwnProperty(key) && key !== 'mediaDetails' && key !== 'fileDetails') {
-          const value = data[key];
-          const label = fieldLabels[key] || key;
-
-          if (value === null || value === undefined || value === '') {
-            continue; // Skip empty values
-          }
-
-          if (typeof value === 'object') {
-            flattenData(value, `${prefix}${label} `);
-          } else {
-            tableRows.push([label, value]);
-          }
-        }
-      }
+    const prettifyLabel = (key) => {
+      if (key === 'isCompleted') return 'Status';
+      if (fieldLabels[key]) return fieldLabels[key];
+      return key
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^./, (str) => str.toUpperCase());
     };
 
-    flattenData(data);
-    if (data.fileDetails) {
-      tableRows.push(["-----------------------Order Details---------------------", ""]);
-      flattenData(data.fileDetails);
+    const formatFieldValue = (key, value) => {
+      if (key === 'isCompleted') {
+        if (typeof value === 'string') {
+          const normalized = value.toLowerCase();
+          if (normalized === 'completed') return 'Completed';
+          if (normalized === 'canceled') return 'Canceled';
+          if (normalized === 'progress' || normalized === 'pending' || normalized === 'in progress') return 'In Progress';
+          return normalized.replace(/^./, (str) => str.toUpperCase());
+        }
+        return value ? 'Completed' : 'Pending';
+      }
+      return value;
+    };
+
+    const flattenData = (value, prefix = '') => {
+      if (value === null || value === undefined || value === '') {
+        return;
+      }
+
+      if (Array.isArray(value)) {
+        value.forEach((item, index) => {
+          flattenData(item, `${prefix}${index + 1}. `);
+        });
+        return;
+      }
+
+      if (typeof value === 'object') {
+        for (const key in value) {
+          if (!Object.prototype.hasOwnProperty.call(value, key)) continue;
+          if (key === 'id' || key === '_id') continue;
+
+          const item = value[key];
+          if (item === null || item === undefined || item === '') continue;
+
+          const label = prettifyLabel(key);
+          if (typeof item === 'object') {
+            flattenData(item, `${prefix}${label} `);
+          } else {
+            tableRows.push([`${prefix}${label}`, String(formatFieldValue(key, item))]);
+          }
+        }
+        return;
+      }
+
+      tableRows.push([prefix.trim(), String(value)]);
+    };
+
+    const baseData = { ...data };
+    const fileDetails = baseData.fileDetails;
+    const mediaDetails = baseData.mediaDetails;
+    delete baseData.fileDetails;
+    delete baseData.mediaDetails;
+
+    if (Object.keys(baseData).length > 0) {
+      tableRows.push(["Customer Details", ""]);
+      flattenData(baseData);
+    }
+
+    if (fileDetails) {
+      tableRows.push(["Order Details", ""]);
+      flattenData(fileDetails);
+    }
+
+    if (Array.isArray(mediaDetails) && mediaDetails.length > 0) {
+      tableRows.push(["Media Details", ""]);
+      flattenData(mediaDetails, "Media Details ");
     }
 
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
-      startY: 15,
+      startY: 30,
       theme: 'striped',
+      didParseCell: (data) => {
+        const rowHeader = data.row.raw[0];
+        if (rowHeader === 'Customer Details' || rowHeader === 'Order Details' || rowHeader === 'Media Details') {
+          data.cell.styles.fontStyle = 'bold';
+          data.cell.styles.fillColor = [245, 245, 245];
+        }
+      },
     });
 
-    doc.save(`${data.partyName}-customer_data.pdf`);
+    doc.setLineWidth(0.5);
+    doc.setTextColor(120);
+    doc.setFontSize(9);
+    doc.line(15, pageHeight - 20, pageWidth - 15, pageHeight - 20);
+    doc.text('Ashoka Printing • Professional printing solutions', pageWidth / 2, pageHeight - 12, { align: 'center' });
+
+    doc.save(`${data.partyName || 'customer'}-customer_data.pdf`);
   };
 
   return (
-    <div>
-      <button className="mt-4 bg-blue-500 text-white py-2 px-4 rounded" onClick={generatePDF}>
+    <div className="flex justify-end mt-2">
+      <button
+        className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-sky-400 dark:text-slate-950 dark:hover:bg-sky-300"
+        onClick={generatePDF}
+      >
         Download PDF
       </button>
-    </div>
+  </div>
   );
 };
 

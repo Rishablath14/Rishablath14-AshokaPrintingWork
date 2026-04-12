@@ -1,10 +1,9 @@
 "use client"
-import React, { useState,useContext } from 'react';
+import React, { useState } from 'react';
 import { toast } from "sonner"
-import { CustomerContext } from './CustomerContext';
+import { addCustomer } from '../actions/customer.action';
 
 const UserAdd = () => {
-  const {addCustomercont} = useContext(CustomerContext);
   const [loading,setLoading] = useState(false);
   const [formData, setFormData] = useState({
   date: '',
@@ -147,7 +146,7 @@ const UserAdd = () => {
     const deliveryDate = new Date(formData.expectedDeliveryDate);
     if (orderDate > deliveryDate) {toast.error("order date must be less than or equal to delivery date",{id:toastid});setLoading(false);return}
     try {
-        await addCustomercont(formData);
+        await addCustomer(formData);
         toast.success("Customer Saved Successfully",{id:toastid})
         setFormData({
           date: '',
@@ -245,8 +244,8 @@ const UserAdd = () => {
   };
 
   return (
-    <div className="w-full min-h-screen p-4 md:p-8">
-      <form className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 place-items-center gap-4' onSubmit={handleCreate}>
+    <div className="job-form-panel">
+      <form className='job-form-grid' onSubmit={handleCreate}>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Order Date:&nbsp;</label>
         <input autoFocus className='p-1 border dark:border-white dark:bg-slate-950 border-black w-full' type="date" name='date' value={formData.date} required={true} onChange={handleChange}/>
@@ -499,32 +498,35 @@ const UserAdd = () => {
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Redium Size:&nbsp;</label>
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.rediumSize' value={formData.fileDetails.rediumSize} onChange={handleChange}/>
         </span>
-        <span className='flex flex-col gap-2 w-full'>
+        <span className='media-count-card flex flex-col gap-2 w-full'>
     <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Number of Media:&nbsp;</label>
     <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name='mediaCount' value={formData.mediaCount} onChange={handleChange} />
   </span>
   {Array.from({ length: formData.mediaCount }, (_, i) => (
-    <div key={i} className='w-full grid grid-cols-3 col-span-1 sm:col-span-3 gap-8 md:gap-6 bg-slate-600 place-items-center border border-black dark:border-white p-1 rounded-md'>
-      <span className='flex flex-col gap-2 w-full'>
-        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Media Type {i + 1}:&nbsp;</label>
-        <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' name={`mediaDetails.${i}.type`} value={formData.mediaDetails[i]?.type || ''} onChange={handleChange}>
-          <option value="">Select Media Type</option>
-          <option value="vinyl">Vinyl</option>
-          <option value="t-vinyl">T-Vinyl</option>
-          <option value="retro">Retro</option>
-          <option value="oneway">One Way</option>
-          <option value="normal-flex">Normal Flex</option>
-          <option value="star-flex">Star Flex</option>
-        </select>
-      </span>
-      <span className='flex flex-col gap-2 w-full my-2'>
-        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Media Rate {i + 1}:&nbsp;</label>
-        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name={`mediaDetails.${i}.rate`} value={formData.mediaDetails[i]?.rate || ''} onChange={handleChange} />
-      </span>
-      <span className='flex flex-col gap-2 w-full'>
-        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Media Size {i + 1}:&nbsp;</label>
-        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name={`mediaDetails.${i}.size`} value={formData.mediaDetails[i]?.size || ''} onChange={handleChange} />
-      </span>
+    <div key={i} className='media-item-card'>
+      <div className='mb-3 text-sm font-semibold text-slate-900 dark:text-white'>Media {i + 1}</div>
+      <div className='media-item-grid'>
+        <span className='flex flex-col gap-2 w-full'>
+          <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Media Type:&nbsp;</label>
+          <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' name={`mediaDetails.${i}.type`} value={formData.mediaDetails[i]?.type || ''} onChange={handleChange}>
+            <option value="">Select Media Type</option>
+            <option value="vinyl">Vinyl</option>
+            <option value="t-vinyl">T-Vinyl</option>
+            <option value="retro">Retro</option>
+            <option value="oneway">One Way</option>
+            <option value="normal-flex">Normal Flex</option>
+            <option value="star-flex">Star Flex</option>
+          </select>
+        </span>
+        <span className='flex flex-col gap-2 w-full'>
+          <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Media Rate:&nbsp;</label>
+          <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name={`mediaDetails.${i}.rate`} value={formData.mediaDetails[i]?.rate || ''} onChange={handleChange} />
+        </span>
+        <span className='flex flex-col gap-2 w-full'>
+          <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Media Size:&nbsp;</label>
+          <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name={`mediaDetails.${i}.size`} value={formData.mediaDetails[i]?.size || ''} onChange={handleChange} />
+        </span>
+      </div>
     </div>
   ))}
         <span className='flex flex-col gap-2 w-full'>
@@ -668,7 +670,7 @@ const UserAdd = () => {
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Other Jobs Quantity:&nbsp;</label>
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.pdfPigmentation.otherQuantity' value={formData.fileDetails.pdfPigmentation.otherQuantity} onChange={handleChange}/>    
         </span>
-        <button type='submit' disabled={loading} className='w-full p-2 border-[1px] border-b-[4px] dark:bg-slate-950 dark:text-white dark:hover:bg-slate-900 hover:border-b-[1px] hover:bg-slate-50/80 transition-all dark:border-white border-zinc-950/90 block text-lg bg-slate-50 rounded-md text-black shadow-md font-bold col-span-1 sm:col-span-2 md:col-span-3'>Add Customer</button>
+        <button type='submit' disabled={loading} className='w-full p-2 border-[1px] border-b-[4px] dark:bg-slate-950 dark:text-white dark:hover:bg-slate-900 hover:border-b-[1px] hover:bg-slate-50/80 transition-all dark:border-white border-zinc-950/90 block text-lg bg-slate-50 rounded-md text-black shadow-md font-bold col-span-1 sm:col-span-2 md:col-span-3'>Create Job Record</button>
         </form>
     </div>
   );

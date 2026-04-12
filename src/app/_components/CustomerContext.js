@@ -1,59 +1,47 @@
-"use client"
-import { createContext, useState, useEffect } from 'react';
-import { ref, onValue,onChildRemoved } from 'firebase/database';
-import { database } from '@/lib/firebase';
-import { addCustomer, deleteCustomer, getAllCustomer, updateCustomer } from '../actions/customer.action';
+"use client";
+
+import { createContext, useCallback, useEffect, useState } from "react";
+import { getAllCustomer } from "../actions/customer.action";
 
 export const CustomerContext = createContext();
 
+const hasSameCustomers = (currentCustomers, nextCustomers) =>
+  JSON.stringify(currentCustomers) === JSON.stringify(nextCustomers);
+
 export const CustomerProvider = ({ children }) => {
   const [customers, setCustomers] = useState([]);
-  
-  const fetchCustomers = async () => {
-    const data = await getAllCustomer();
-    setCustomers(data);
-  };
-  useEffect(() => {
-    // fetchCustomers();
-    const customersRef = ref(database, 'customers');
-    const unsubscribe = onValue(customersRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const customersList = Object.values(data);
-        setCustomers(customersList);
-      }
-    });
-    const unsubscribeOnChildRemoved = onChildRemoved(customersRef, (snapshot) => {
-      const removedCustomerId = snapshot.key;
-      setCustomers((prevCustomers) => prevCustomers.filter((customer) => customer._id !== removedCustomerId));
-    });
 
-    return () => {unsubscribe();unsubscribeOnChildRemoved();}
+  const refreshCustomers = useCallback(async () => {
+    try {
+      const nextCustomers = await getAllCustomer();
+      const normalizedCustomers = Array.isArray(nextCustomers) ? nextCustomers : [];
+      setCustomers((currentCustomers) =>
+        hasSameCustomers(currentCustomers, normalizedCustomers) ? currentCustomers : normalizedCustomers,
+      );
+    } catch (error) {
+      console.error("Failed to refresh customers", error);
+    }
   }, []);
-  
-  const addCustomercont = async (customerData) => {
-    await addCustomer(customerData);
-    // fetchCustomers();
-  };
 
-  const getCustomercont = async (id) => {
-    return customers.filter((cust)=>cust._id===id)
-  };
+  useEffect(() => {
+    let isMounted = true;
 
-  const updateCustomercont = async (id, updatedData) => {
-     await updateCustomer(id,updatedData);
-    // fetchCustomers();
-  };
+    const loadCustomers = async () => {
+      if (!isMounted) {
+        return;
+      }
 
-  const deleteCustomercont = async (id) => {
-    await deleteCustomer(id);
-  };
+      await refreshCustomers();
+    };
 
-  return (
-    <CustomerContext.Provider
-      value={{ customers,addCustomercont,getCustomercont,updateCustomercont, deleteCustomercont }}
-    >
-      {children}
-    </CustomerContext.Provider>
-  );
+    loadCustomers();
+    const intervalId = window.setInterval(loadCustomers, 60 * 1000);
+
+    return () => {
+      isMounted = false;
+      window.clearInterval(intervalId);
+    };
+  }, [refreshCustomers]);
+
+  return <CustomerContext.Provider value={{ customers, refreshCustomers }}>{children}</CustomerContext.Provider>;
 };

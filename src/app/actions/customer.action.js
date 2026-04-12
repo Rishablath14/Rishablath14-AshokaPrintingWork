@@ -1,103 +1,80 @@
 "use server"
-import { connect } from '@/app/actions/dbconnect.action';
 import { database } from '@/lib/firebase';
-import { ref, push, set,update,remove,get } from 'firebase/database';
-import Customers from '@/app/utils/userSchema';
-import { revalidatePath } from 'next/cache';
+import { ref, push, set, update, remove, get } from 'firebase/database';
+import { requireAdminSession } from '@/lib/auth/session';
+import {
+    assertCustomerId,
+    normalizeCustomerCollection,
+    normalizeCustomerPayload,
+    normalizeCustomerUpdate,
+} from '@/lib/customer/data';
 
 
 export const getAllCustomer = async()=>{
-    // await connect();
-    // const customer = await Customers.find();
-    // if(!customer) return null;
-    // const data = JSON.parse(JSON.stringify(customer));
-    // revalidatePath("/");
-    // return data;
+    await requireAdminSession();
     try {
         const customersRef = ref(database, 'customers');
         const snapshot = await get(customersRef);
-        if (snapshot.exists()) {
-          return snapshot.val();
-        } else {
-          return null;
-        }
+        return snapshot.exists()
+          ? normalizeCustomerCollection(snapshot.val())
+          : [];
       } catch (error) {
-        return null;
+        console.error("Failed to load customers", error);
+        throw new Error("Failed to load customers");
       }
 }
+export const getCustomerById = async (id) => {
+  await requireAdminSession();
+  try {
+    const customerId = assertCustomerId(id);
+    const customerRef = ref(database, `customers/${customerId}`);
+    const snapshot = await get(customerRef);
+    return snapshot.exists()
+      ? snapshot.val()
+      : null;
+  } catch (error) {
+    console.error("Failed to load customer", error);
+    throw new Error("Failed to load customer. Please try again later.");
+  }
+};
 export const addCustomer = async (cust) => {
+    await requireAdminSession();
     try {
+        const customerData = normalizeCustomerPayload(cust);
         const customersRef = ref(database, 'customers');
         const newCustomerRef = push(customersRef);
-        const customerWithId = { _id: newCustomerRef.key, ...cust };
+        const customerWithId = { _id: newCustomerRef.key, ...customerData };
         await set(newCustomerRef, customerWithId);        
         return customerWithId;
       } catch (error) {
-        return null;
+        console.error("Failed to add customer", error);
+        throw new Error(error.message || "Failed to add customer");
       }
-    // try{
-    //     await connect();
-    //     const customer = new Customers(cust);
-    //     const save = await customer.save();
-    //     const data = JSON.parse(JSON.stringify(save));
-    //     return data;
-    //     }
-    //     catch(e){
-    //         console.log("error",e);
-    //         return false
-    //     }
 }
 export const deleteCustomer = async (id) => {
-    // try{
-    //     await connect();
-    //     const customer = await Customers.deleteOne({_id:id});
-    //     if(customer.deletedCount>0) return true
-    //     else return false
-    // }
-    // catch(e){
-    //     console.log("error",e);
-    // }
+    await requireAdminSession();
     try {
-        const customerRef = ref(database, `customers/${id}`);
+        const customerId = assertCustomerId(id);
+        const customerRef = ref(database, `customers/${customerId}`);
         await remove(customerRef);        
         return true;
       } catch (error) {
-        return false;
+        console.error("Failed to delete customer", error);
+        throw new Error("Failed to delete customer");
       }
 }
 export const updateCustomer = async (id,data) => {
-
-//     try{
-//     await connect();
-//     const customer = await Customers.updateOne(
-//       { _id:id},
-//       { $set: {...rest} }
-//     );
-//     if(customer.modifiedCount>0) {
-//         const data = {_id:id,...rest}
-//         return data;
-//     }
-//     else return null
-// }
-// catch(e){
-//     console.log("error",e);
-// }
+await requireAdminSession();
 try {
-    const customerRef = ref(database, `customers/${id}`);
-    await update(customerRef, data);
-    const snapshot = await get(customerRef);
-      if (snapshot.exists()) {
-        return snapshot.val();
-      } else {
-        return null;
-      }
+    const customerId = assertCustomerId(id);
+    const updates = normalizeCustomerUpdate(data);
+    const customerRef = ref(database, `customers/${customerId}`);
+    await update(customerRef, updates);
+    return { _id: customerId, ...updates };
   } catch (e) {
-    console.log("error",e);
-    return null;
+    console.error("Failed to update customer", e);
+    throw new Error(e.message || "Failed to update customer");
   }
 }
-
-
-
 
 

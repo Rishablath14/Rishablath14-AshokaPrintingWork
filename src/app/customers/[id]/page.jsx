@@ -1,26 +1,35 @@
 "use client"
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
-import { useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { toast } from "sonner"
 import { cn } from '@/lib/utils';
 import Link from 'next/link'
-import { CustomerContext } from "@/app/_components/CustomerContext";
 import PdfComp from "@/app/_components/PdfComp";
+import { deleteCustomer, getCustomerById } from "@/app/actions/customer.action";
 
-const page = ({params}) => {
-  const { getCustomercont, customers, deleteCustomercont } = useContext(CustomerContext);
+const page = () => {
   const router = useRouter();
+  const { id } = useParams();
   const [customer, setCustomer] = useState(null);
-  useEffect(()=>
-  {
-  const getData = async()=>{
-  const data = await getCustomercont(params.id);
-  setCustomer(data[0]);
-  }
-  getData();
-  },[params.id,customers])
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const fetchCustomer = async () => {
+      try {
+        if (!id) return;
+        const data = await getCustomerById(id);
+        setCustomer(data);
+      } catch (error) {
+        console.error("Error fetching customer:", error);
+      }
+    };
+
+    fetchCustomer();
+  }, [id]);
+
   const formattedDate = (date)=>{
     const udate = new Date(date);
     const formattedDate = `${udate.getDate()} / ${udate.getMonth() + 1} / ${udate.getFullYear()}`;
@@ -35,22 +44,41 @@ const page = ({params}) => {
         }).format(amt);
     return formatted;    
   }
-  const handleDelete = async()=>{
-    if(!window.confirm("Are you sure you want to Delete!"))return;
-    const toastid = toast.loading("deleting..");
+  const openDeleteModal = () => {
+    setShowDeleteModal(true);
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    setIsDeleting(true);
+    const toastid = toast.loading("Deleting...");
+
     try {
-      await deleteCustomercont(params.id);
-      toast.success('Customer deleted successfully!',{id:toastid});
+      await deleteCustomer(id);
+      toast.success('Customer deleted successfully!', { id: toastid });
       router.push("/customers");
     } catch (error) {
       console.error('Error deleting customer:', error);
-      toast.error('An error occurred while deleting customer!',{id:toastid});
+      toast.error('An error occurred while deleting customer!', { id: toastid });
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
     }
-  }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+  };
+
   if(!customer) return <div className='w-full min-h-[calc(100vh-96px)] flex justify-center items-center'>Loading...</div>
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <div className="pb-4 flex justify-start items-center">
+    <div className="page-shell space-y-6">
+      <section className="page-hero">
+        <span className="page-kicker">Customer Record</span>
+        <h1 className="page-title md:text-4xl">{customer.partyName || "Job record"}</h1>
+        <p className="page-copy">Customer details, billing details, and job specifications.</p>
+      </section>
+      <div className="surface-card flex flex-wrap items-center gap-3 p-4 md:p-5">
         <Link href="/customers">
           <Button variant="outline" size="sm">
             <ChevronLeft className="h-4 w-4 mr-2" /> Back to Customers
@@ -58,20 +86,52 @@ const page = ({params}) => {
         </Link>
         { customer &&
         <>
-        <Link href={`${params.id}/update`} className='mx-1 md:mx-2'>
+        <Link href={`${id}/update`} className='mx-1 md:mx-2'>
           <Button variant="outline" size="sm">
             Update
           </Button>
         </Link>
-          <Button variant="outline" size="sm" onClick={handleDelete}>
+          <Button variant="outline" size="sm" onClick={openDeleteModal}>
             Delete
           </Button>
         </>
           }
       </div>
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 py-6">
+          <div className="w-full max-w-lg rounded-3xl bg-white p-5 shadow-2xl dark:bg-slate-950 dark:text-white">
+            <div className="flex flex-col gap-4">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Confirm Delete</p>
+                <h3 className="mt-3 text-xl font-semibold text-slate-900 dark:text-white">Delete this customer?</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                  This action cannot be undone. The customer record and all associated data will be permanently removed.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={cancelDelete}
+                className="inline-flex justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={handleDelete}
+                className="inline-flex justify-center rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete customer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {customer ? (
         <div>
-          <div className="bg-white dark:bg-slate-900 dark:text-white shadow overflow-auto sm:rounded-lg mb-8">
+          <div className="surface-card overflow-auto mb-6">
             <div className="px-4 py-5 sm:px-6">
               <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">Personal Information</h3>
             </div>
@@ -101,7 +161,7 @@ const page = ({params}) => {
               </dl>
             </div>
           </div>
-          <div className="bg-white dark:bg-slate-900 dark:text-white shadow overflow-auto sm:rounded-lg">
+          <div className="surface-card overflow-auto">
             <div className="px-4 py-5 sm:px-6">
               <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">Work Information</h3>
             </div>
@@ -427,5 +487,3 @@ const page = ({params}) => {
 }
  
 export default page
-
-

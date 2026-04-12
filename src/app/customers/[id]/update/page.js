@@ -1,33 +1,46 @@
 "use client"
-import { CustomerContext } from '@/app/_components/CustomerContext'
 import React, { useEffect, useState } from 'react'
 import { toast } from "sonner"
+import { useParams } from 'next/navigation';
+import { getCustomerById, updateCustomer } from '@/app/actions/customer.action'
 
-const page = ({params}) => {
-  const { getCustomercont,updateCustomercont } = React.useContext(CustomerContext);
+const page = () => {
+  const { id } = useParams();
+
    const [formData,setFormData] = useState(null);
    const [loading,setLoading] = useState(false);
    const [initialData,setInitialData] = useState(null);
 
    useEffect(() => {
-    const fetchData = async () => {
+    if (initialData || !id) {
+      return;
+    }
+
+    const fetchCustomer = async () => {
       try {
-        const data = await getCustomercont(params.id);
-        if (data && data.length > 0) {
-          const oneCustomer = data[0];
-          const uporddate = new Date(oneCustomer.date).toISOString().split('T')[0];
-          const updeldata = new Date(oneCustomer.expectedDeliveryDate).toISOString().split('T')[0];
-          const updata = { ...oneCustomer, date: uporddate, expectedDeliveryDate: updeldata };
-          setFormData(updata);
-          setInitialData(updata);
+        const customer = await getCustomerById(id);
+        if (!customer) {
+          return;
         }
+
+        const uporddate = new Date(customer.date).toISOString().split('T')[0];
+        const updeldata = new Date(customer.expectedDeliveryDate).toISOString().split('T')[0];
+        const updata = {
+          ...customer,
+          date: uporddate,
+          expectedDeliveryDate: updeldata,
+          mediaCount: customer.mediaCount ?? 0,
+          mediaDetails: customer.mediaDetails ?? [],
+        };
+        setFormData(updata);
+        setInitialData(updata);
       } catch (error) {
         console.error("Error fetching customer data:", error);
       }
     };
 
-    fetchData();
-  }, [params.id, getCustomercont]);
+    fetchCustomer();
+  }, [initialData, id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,10 +63,10 @@ const page = ({params}) => {
       if (count < 0) return; // Prevent negative values
   
       setFormData((prevFormData) => {
-        const currentDetails = prevFormData.mediaDetails;
+        const currentDetails = prevFormData.mediaDetails ?? [];
   
         // Create a new array of media details with the desired length
-        const updatedMediaDetails = Array(count).fill({}).map((_, i) => {
+        const updatedMediaDetails = Array.from({ length: count }, (_, i) => {
           return currentDetails[i] || { type: '', rate: '', size: '' };
         });
   
@@ -73,21 +86,27 @@ const page = ({params}) => {
   const handleUpdate = async (e)=>{
     e.preventDefault();
     const toastid = toast.loading("Updating...");
-    if(initialData===formData){toast.info("No Changes to Update",{id:toastid});return}
+    if(JSON.stringify(initialData) === JSON.stringify(formData)){toast.info("No Changes to Update",{id:toastid});return}
     const orderDate = new Date(formData.date);
     const deliveryDate = new Date(formData.expectedDeliveryDate);
     if (orderDate > deliveryDate) {toast.error("order date must be less than or equal to delivery date",{id:toastid});return}
     setLoading(true);
     try{
-      const dataup = {id:params.id,...formData};
-      await updateCustomercont(params.id,dataup);
+      const dataup = {id:id,...formData};
+      await updateCustomer(id,dataup);
       toast.success("Customer Updated Successfully",{id:toastid});
     }catch(e){console.log("error",e)}finally{setLoading(false)}
   }
   if(!formData) return <div className='flex justify-center items-center min-h-[calc(100vh-96px)]'>Loading...</div>
   return (
-    <div className="w-full min-h-screen p-4 md:p-8">
-        <form className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 place-items-center gap-4' onSubmit={handleUpdate}>
+    <div className="job-form-shell space-y-6">
+        <section className="page-hero">
+          <span className="page-kicker">Update Job</span>
+          <h1 className="page-title md:text-4xl">Update Job</h1>
+          <p className="page-copy">Edit customer, job, and billing details.</p>
+        </section>
+        <div className="job-form-panel">
+        <form className='job-form-grid' onSubmit={handleUpdate}>
         <span className='flex flex-col gap-2 w-full'>
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Order Date:&nbsp;</label>
         <input autoFocus className='p-1 border dark:border-white dark:bg-slate-950 border-black w-full' type="date" name='date' value={formData.date} required={true} onChange={handleChange}/>
@@ -348,32 +367,35 @@ const page = ({params}) => {
         <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Redium Size:&nbsp;</label>
         <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name='fileDetails.rediumSize' value={formData.fileDetails.rediumSize} onChange={handleChange}/>
         </span>
-        <span className='flex flex-col gap-2 w-full'>
+        <span className='media-count-card flex flex-col gap-2 w-full'>
     <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Number of Media:&nbsp;</label>
     <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name='mediaCount' value={formData.mediaCount} onChange={handleChange} />
   </span>
-  {Array.from({ length: formData.mediaCount }, (_, i) => (
-    <div key={i} className='w-full grid grid-cols-3 col-span-1 sm:col-span-3 gap-8 md:gap-6 bg-slate-600 place-items-center border border-black dark:border-white p-1 rounded-md'>
-      <span className='flex flex-col gap-2 w-full'>
-        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Media Type {i + 1}:&nbsp;</label>
-        <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' name={`mediaDetails.${i}.type`} value={formData.mediaDetails[i]?.type || ''} onChange={handleChange}>
-          <option value="">Select Media Type</option>
-          <option value="vinyl">Vinyl</option>
-          <option value="t-vinyl">T-Vinyl</option>
-          <option value="retro">Retro</option>
-          <option value="oneway">One Way</option>
-          <option value="normal-flex">Normal Flex</option>
-          <option value="star-flex">Star Flex</option>
-        </select>
-      </span>
-      <span className='flex flex-col gap-2 w-full my-2'>
-        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Media Rate {i + 1}:&nbsp;</label>
-        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name={`mediaDetails.${i}.rate`} value={formData.mediaDetails[i]?.rate || ''} onChange={handleChange} />
-      </span>
-      <span className='flex flex-col gap-2 w-full'>
-        <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Media Size {i + 1}:&nbsp;</label>
-        <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name={`mediaDetails.${i}.size`} value={formData.mediaDetails[i]?.size || ''} onChange={handleChange} />
-      </span>
+  {Array.from({ length: formData.mediaCount || 0 }, (_, i) => (
+    <div key={i} className='media-item-card'>
+      <div className='mb-3 text-sm font-semibold text-slate-900 dark:text-white'>Media {i + 1}</div>
+      <div className='media-item-grid'>
+        <span className='flex flex-col gap-2 w-full'>
+          <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Media Type:&nbsp;</label>
+          <select className='p-1 border dark:border-white dark:bg-slate-950 border-black' name={`mediaDetails.${i}.type`} value={formData.mediaDetails?.[i]?.type || ''} onChange={handleChange}>
+            <option value="">Select Media Type</option>
+            <option value="vinyl">Vinyl</option>
+            <option value="t-vinyl">T-Vinyl</option>
+            <option value="retro">Retro</option>
+            <option value="oneway">One Way</option>
+            <option value="normal-flex">Normal Flex</option>
+            <option value="star-flex">Star Flex</option>
+          </select>
+        </span>
+        <span className='flex flex-col gap-2 w-full'>
+          <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Media Rate:&nbsp;</label>
+          <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="number" name={`mediaDetails.${i}.rate`} value={formData.mediaDetails?.[i]?.rate || ''} onChange={handleChange} />
+        </span>
+        <span className='flex flex-col gap-2 w-full'>
+          <label className='text-white font-bold p-1 border border-black rounded-md bg-zinc-900/100 dark:text-black dark:bg-slate-50 text-center'>Media Size:&nbsp;</label>
+          <input className='p-1 border dark:border-white dark:bg-slate-950 border-black' type="text" name={`mediaDetails.${i}.size`} value={formData.mediaDetails?.[i]?.size || ''} onChange={handleChange} />
+        </span>
+      </div>
     </div>
   ))}
         <span className='flex flex-col gap-2 w-full'>
@@ -519,6 +541,7 @@ const page = ({params}) => {
         </span>
         <button type='submit' disabled={loading} className='w-full p-2 border-[1px] border-b-[4px] dark:bg-slate-950 dark:text-white dark:hover:bg-slate-900 hover:border-b-[1px] hover:bg-slate-50/80 transition-all dark:border-white border-zinc-950/90 block text-lg bg-slate-50 rounded-md text-black shadow-md font-bold col-span-1 sm:col-span-2 md:col-span-3'>Update Customer</button>
         </form>
+        </div>
     </div>
   )
 }
